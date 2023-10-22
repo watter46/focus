@@ -6,6 +6,7 @@ use App\Http\Controllers\OAuth\RedirectToProviderController;
 use Illuminate\Support\Facades\Route;
 
 use App\Livewire\Project\NewProject\NewProject;
+use App\Livewire\Project\Projects\Projects;
 
 Route::get('/', function () {
     return view('welcome');
@@ -23,6 +24,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    Route::get('/projects', Projects::class)->name('projects');
     Route::get('/projects/new', NewProject::class)->name('project.new');
 });
 

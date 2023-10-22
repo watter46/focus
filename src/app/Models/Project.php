@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 use App\Models\Task;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * @property string $id
@@ -48,6 +49,40 @@ final class Project extends Model
         $this->tasks()->save($this->tasks);
 
         return $this;
+    }
+
+    /**
+     * ラベルでソート
+     *
+     * @param  Builder<Project> $query
+     * @param  string $label
+     * @return void
+     */
+    public function scopeLabelIs(Builder $query, string $label): void
+    {
+        if (empty($label)) {
+            return;
+        }
+
+        $query->where('label', $label);
+    }
+
+    /**
+     * 完了したプロジェクトをソート
+     *
+     * @param  Builder<Project> $query
+     * @param  string $progress
+     * @return void
+     */
+    public function scopeProgressIs(Builder $query, string $progress): void
+    {
+        if ($progress === 'completed') {
+            $query->withoutGlobalScope('completed')->where('is_complete', true);
+        }
+
+        if ($progress === 'all') {
+            $query->withoutGlobalScope('completed');
+        }
     }
 
     /**
