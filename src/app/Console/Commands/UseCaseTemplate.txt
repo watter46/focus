@@ -9,7 +9,7 @@ final readonly class {$className}
         //
     }
 
-    public function __invoke()
+    public function execute()
     {
 
     }
