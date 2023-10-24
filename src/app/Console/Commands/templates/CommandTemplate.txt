@@ -8,9 +8,4 @@ final readonly class {$className}
     {
         //
     }
-
-    public function execute()
-    {
-
-    }
 }

@@ -1,0 +1,19 @@
+<?php declare(strict_types=1);
+
+namespace App\UseCases\{$nameSpace};
+
+use App\UseCases\{$nameSpace}\{$subCommandClassName};
+
+
+final readonly class {$className}
+{
+    public function __construct()
+    {
+        //
+    }
+
+    public function execute({$subCommandClassName} $command)
+    {
+
+    }
+}
