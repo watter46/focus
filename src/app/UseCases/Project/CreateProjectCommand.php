@@ -2,42 +2,62 @@
 
 namespace App\UseCases\Project;
 
-use App\Models\Project;
-use App\Models\Task;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
+use App\Livewire\Utils\Label\Enum\LabelType;
+use App\UseCases\Project\RegisterTask\TaskInProject;
 
 final readonly class CreateProjectCommand
 {
-    public function __construct(private Collection $validated)
-    {
+    public function __construct(
+        private string $projectName,
+        private LabelType $label,
+        private string $name,
+        private string $content 
+    ) {
         //
     }
-    
-    /**
-     * ProjectとTaskのモデルを作成する
-     *
-     * @return Project
-     */
-    public function makeProjectTask(): Project
+
+    public function projectName(): string
     {
-        $form = $this->validated->first();
-                
-        $project = new Project([
-            'user_id'      => Auth::user()->id,
-            'project_name' => $form['projectName'],
-            'label'        => $form['label'],
-            'is_complete'  => false
-        ]);
-
-        $task = new Task([
-            'name'        => $form['name'],
-            'content'     => $form['content'],
-            'is_complete' => false
-        ]);
-
-        $project->setRelation('tasks', $task);
-        
-        return $project;
+        return $this->projectName;
     }
+
+    public function label(): LabelType
+    {
+        return $this->label;
+    }
+
+    public function taskInProjectCommand(): TaskInProject
+    {
+        return new TaskInProject(
+            name: $this->name,
+            content: $this->content
+        );
+    }
+    
+    // /**
+    //  * ProjectとTaskのモデルを作成する
+    //  *
+    //  * @return Project
+    //  */
+    // public function makeProjectTask(): Project
+    // {
+    //     $form = $this->validated->first();
+                
+    //     $project = new Project([
+    //         'user_id'      => Auth::user()->id,
+    //         'project_name' => $form['projectName'],
+    //         'label'        => $form['label'],
+    //         'is_complete'  => false
+    //     ]);
+
+    //     $task = new Task([
+    //         'name'        => $form['name'],
+    //         'content'     => $form['content'],
+    //         'is_complete' => false
+    //     ]);
+
+    //     $project->setRelation('tasks', $task);
+        
+    //     return $project;
+    // }
 }

@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\Project;
+use App\Models\Task;
 
 final readonly class CreateProjectUseCase
 {
@@ -23,15 +24,18 @@ final readonly class CreateProjectUseCase
     public function execute(CreateProjectCommand $command): Project
     {
         try {
-            return DB::transaction(function () use ($command) {
-                $project = $command->makeProjectTask();
-        
-                $project->store();
+            $project = (new Project)->createProject($command);
+            $task    = (new Task)->createTask($command->taskInProjectCommand());
 
-                return $project;
+            DB::transaction(function () use ($project, $task) {        
+                $project->save();
+                $project->tasks()->save($task);
             });
-        } catch (Exception $e) {
+
+            return $project;
             
+        } catch (Exception $e) {
+            throw $e;
         }
     }
 }
