@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,14 +10,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 use App\Models\Task;
-use Illuminate\Database\Eloquent\Builder;
+use App\Livewire\Utils\Label\Enum\LabelType;
+use App\UseCases\Project\CreateProjectCommand;
+use App\UseCases\Project\ProjectCommand;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * @property string $id
  * @property string $user_id
  * @property string $project_name
- * @property string $label
- * @property bool   $is_complete
+ * @property LabelType $label
+ * @property bool $is_complete
  */
 final class Project extends Model
 {
@@ -35,18 +39,66 @@ final class Project extends Model
     ];
 
     protected $casts = [
-        'is_complete' => 'boolean'
+        'is_complete' => 'boolean',
+        'label'       => LabelType::class
     ];
+
+    public function createProject(CreateProjectCommand $command): self
+    {
+        $this->user_id      = Auth::user()->id;
+        $this->project_name = $command->projectName();
+        $this->label        = $command->label();
+        $this->is_complete  = false;
+        
+        return $this;
+    }
     
     /**
-     * Projectとタスクを保存する
+     * プロジェクト名を更新する
+     *
+     * @param  ProjectCommand $command
+     * @return self
+     */
+    public function updateProjectName(ProjectCommand $command): self
+    {
+        $this->project_name = $command->name();
+        
+        return $this;
+    }
+
+    /**
+     * ラベルを更新する
+     *
+     * @param  ProjectCommand $command
+     * @return self
+     */
+    public function updateLabel(ProjectCommand $command): self
+    {
+        $this->label = $command->label();
+        
+        return $this;
+    }
+    
+    /**
+     * プロジェクトを完了する
      *
      * @return self
      */
-    public function store(): self
+    public function complete(): self
     {
-        $this->save();
-        $this->tasks()->save($this->tasks);
+        $this->is_complete = true;
+
+        return $this;
+    }
+
+    /**
+     * プロジェクトを未完了にする
+     *
+     * @return self
+     */
+    public function incomplete(): self
+    {
+        $this->is_complete = false;
 
         return $this;
     }
@@ -103,5 +155,28 @@ final class Project extends Model
     public function tasks(): HasMany
     {
         return $this->hasMany(Task::class);
+    }
+
+    public function incompleteTasks(): HasMany
+    {
+        return $this
+            ->hasMany(Task::class)
+            ->where('is_complete', false);
+    }
+    
+    /**
+     * withTaskCount
+     *
+     * @param  Builder<Project> $query
+     * @return void
+     */
+    public function scopeTasksCount(Builder $query)
+    {
+        $query->withCount([
+            'tasks',
+            'tasks as incomplete_tasks_count' => function (Builder $query) {
+                $query->where('is_complete', false);
+            }
+        ]);
     }
 }

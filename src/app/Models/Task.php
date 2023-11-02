@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 use App\Models\Project;
+use App\UseCases\Project\RegisterTask\TaskInProject;
+use App\UseCases\Task\UpdateTask\UpdateTaskCommand;
 
 /**
  * @property string $id
@@ -41,9 +43,62 @@ class Task extends Model
      *
      * @return BelongsTo<Project, Task>
      */
-    public function projects(): BelongsTo
+    public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
+    }
+    
+    /**
+     * タスクを完了する
+     *
+     * @return self
+     */
+    public function complete(): self
+    {
+        $this->is_complete = true;
+
+        return $this;
+    }
+    
+    /**
+     * タスクを未完了にする
+     *
+     * @return self
+     */
+    public function incomplete(): self
+    {
+        $this->is_complete = false;
+
+        return $this;
+    }
+    
+    /**
+     * タスクを追加する
+     *
+     * @param  TaskInProject $validator
+     * @return self
+     */
+    public function createTask(TaskInProject $validator): self
+    {
+        $this->name = $validator->name();
+        $this->content = $validator->content();
+        $this->is_complete = false;
+
+        return $this;
+    }
+    
+    /**
+     * タスクを更新する
+     *
+     * @param  UpdateTaskCommand $command
+     * @return self
+     */
+    public function updateTask(UpdateTaskCommand $command): self
+    {        
+        $this->name    = $command->name()    ?? $this->name;
+        $this->content = $command->content() ?? $this->content;
+
+        return $this;
     }
 
     /**
