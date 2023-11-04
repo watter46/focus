@@ -3,7 +3,7 @@
         {{-- ProjectNameInput --}}
         <div class="p-0.5 mb-10 bg-gray-800 rounded-lg">
             <div class="bg-gray-800 " style="height: 18px;">
-                @error('form.projectName')
+                @error('projectName')
                     <span class="px-2 text-red-500">{{ $message }}</span>
                 @enderror
             </div>
@@ -14,7 +14,7 @@
                 type="text"
                 autocomplete="off"
                 placeholder="ProjectName"
-                wire:model="form.projectName"
+                wire:model="projectName"
                 wire:keydown.ctrl.enter.prevent="create" />
         </div>
 
@@ -45,14 +45,14 @@
                     class="p-2 mx-2 text-gray-500 rounded cursor-pointer parent-checkbox-btn hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600"
                     type="button"
                     title="shift + alt"
-                    @click="$dispatch('notify', 'create')">
+                    @click="$dispatch('new-project-editor', 'create')">
                     <x-icons.add-task />
                 </button>
             </div>
             
             {{-- TaskName --}}
             <div class="bg-gray-800 " style="height: 18px;">
-                @error('form.name')
+                @error('name')
                     <span class="px-2 text-red-500">{{ $message }}</span>
                 @enderror
             </div>
@@ -62,13 +62,13 @@
                 type="text"
                 autocomplete="off"
                 placeholder="TaskName"
-                wire:model="form.name"
+                wire:model="name"
                 @keydown.ctrl.enter.prevent="$wire.create($refs.newTaskContent.value)" />
 
             {{-- Content --}}
             <div class="px-2 py-2 rounded-b-lg dark:bg-gray-800">
                 <div class="bg-gray-800 " style="height: 18px;">
-                    @error('form.content')
+                    @error('content')
                         <span class="px-2 text-red-500">{{ $message }}</span>
                     @enderror
                 </div>
@@ -80,9 +80,9 @@
                     rows="8"
                     placeholder="Write an task..."
                     x-ref="newTaskContent"
-                    wire:model="form.content"
+                    wire:model="content"
                     @input="resize($el)"
-                    @notify.window="prependOrNone($event.detail)"
+                    @new-project-editor.window="prependOrNone($event.detail)"
                     @keydown="keydownShiftAlt($event)"
                     @keydown.ctrl.enter.prevent="$wire.create($refs.newTaskContent.value)">
                 </textarea>
@@ -113,29 +113,25 @@
                     <x-icons.label />
                 </button>
 
-                <div
-                    x-cloak
-                    x-show="isOpen"
-                    x-data="{ label: @entangle('form.label') }">
+                <div x-cloak x-show="isOpen">
                     <div class="absolute w-full mt-1 bg-gray-800 border border-gray-400 rounded-lg top-full">
                         <p class="px-2 py-3 font-medium text-white pointer-events-none">
                             Select Label
                         </p>
 
-                        @foreach ($form->LABELS as $LABEL)
+                        @foreach ($LABELS as $LABEL)
                             <div class="label-hover flex p-1.5 text-xs text-white border-t border-gray-700 hover:bg-sky-800"
-                                @click="
-                                    isOpen = false,
-                                    label='{{ $LABEL['text'] }}'
-                                ">
+                                wire:click.prevent="update('{{ $LABEL->get('text') }}')"
+                                @click="isOpen = false">
 
-                                @if ($LABEL['text'] !== $form->setLabel['text'])
-                                    <span class="{{ $LABEL['class'] }}"></span>
-                                    <p class="label-text">{{ $LABEL['text'] }}</p>
-                                @else
-                                    <span
-                                        class="{{ $LABEL['class'] }}"></span>
-                                    <p class="label-text-selected">{{ $LABEL['text'] }}</p>
+                                @if (!$this->isSame($LABEL))
+                                    <span class="{{ $LABEL->get('class') }}"></span>
+                                    <p class="label-text">{{ $LABEL->get('text') }}</p>
+                                @endif
+
+                                @if ($this->isSame($LABEL))
+                                    <span class="{{ $LABEL->get('class') }}"></span>
+                                    <p class="label-text-selected">{{ $LABEL->get('text') }}</p>
                                     <x-icons.selected-cross />
                                 @endif
                             </div>
@@ -145,7 +141,7 @@
             </div>
 
             <p class="p-1 text-lg font-medium text-white focus:outline-none bg-inherit">
-                {{ $form->setLabel['text'] }}
+                {{ $label->get('text') }}
             </p>
 
             <div class="w-full mt-3 border-b-2 border-gray-400"></div>
@@ -153,10 +149,10 @@
     </div>
 
     @push('label-style')
-        @vite(['resources/css/Utils/label.css'])
+        @vite(['resources/css/utils/label.css'])
     @endpush
 
-    {{-- @push('editor-script')
-        @vite(['resources/js/Project/editor.js'])
-    @endpush --}}
+    @push('editor-script')
+        @vite(['resources/js/project/editor.js'])
+    @endpush
 </div>

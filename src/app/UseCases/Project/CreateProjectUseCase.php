@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Project;
 use App\Models\Task;
 
+
 final readonly class CreateProjectUseCase
 {
     public function __construct()
@@ -16,7 +17,7 @@ final readonly class CreateProjectUseCase
     }
     
     /**
-     * execute
+     * プロジェクトとタスクを作成する
      *
      * @param CreateProjectCommand $command
      * @return Project
