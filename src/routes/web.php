@@ -6,6 +6,7 @@ use App\Http\Controllers\OAuth\RedirectToProviderController;
 use Illuminate\Support\Facades\Route;
 
 use App\Livewire\Project\NewProject\NewProject;
+use App\Livewire\Project\ProjectDetail\ProjectDetail;
 use App\Livewire\Project\Projects\Projects;
 
 Route::get('/', function () {
@@ -26,6 +27,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/projects', Projects::class)->name('projects');
     Route::get('/projects/new', NewProject::class)->name('project.new');
+    Route::get('/projects/{projectId}', ProjectDetail::class)->name('project.detail');
 });
 
 require __DIR__.'/auth.php';

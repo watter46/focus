@@ -3,6 +3,7 @@
 namespace App\Livewire\Utils\Message;
 
 use App\Livewire\Utils\Message\MessageType;
+use Exception;
 
 final readonly class Message
 {    
@@ -32,12 +33,12 @@ final readonly class Message
     /**
      * Errorメッセージを作成する
      *
-     * @param  string $message
+     * @param  Exception $e
      * @return self
      */
-    public static function createErrorMessage(string $message): self
+    public static function createErrorMessage(Exception $e): self
     {
-        return new self(MessageType::Error, $message);
+        return new self(MessageType::Error, $e->getMessage());
     }
     
     /**

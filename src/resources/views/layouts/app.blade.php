@@ -14,7 +14,29 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+        {{-- Dashboard --}}
+        @stack('chart-script')
+        @stack('histories-style')
+
+        {{-- Projects --}}
         @stack('projects-style')
+        @stack('label-style')
+
+        {{-- Project --}}
+        @stack('projectDetail-script')
+        @stack('taskDetail-script')
+        @stack('editor-script')
+
+        {{-- Development --}}
+        @stack('development-script')
+        @stack('breakTime-script')
+
+        {{-- Development/Timer --}}
+        @stack('buttons-style')
+
+        {{-- Development/taskSelector --}}
+        @stack('incompleteTasks-style')
+        @stack('taskSelector-script')
 
         @livewireStyles
     </head>
