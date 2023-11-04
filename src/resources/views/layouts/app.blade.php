@@ -14,16 +14,41 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+        {{-- Dashboard --}}
+        @stack('chart-script')
+        @stack('histories-style')
+
+        {{-- Projects --}}
+        @stack('projects-style')
+        @stack('label-style')
+
+        {{-- Project --}}
+        @stack('projectDetail-script')
+        @stack('taskDetail-script')
+        @stack('editor-script')
+
+        {{-- Development --}}
+        @stack('development-script')
+        @stack('breakTime-script')
+
+        {{-- Development/Timer --}}
+        @stack('buttons-style')
+
+        {{-- Development/taskSelector --}}
+        @stack('incompleteTasks-style')
+        @stack('taskSelector-script')
+
         @livewireStyles
     </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
+    <body class="font-sans antialiased bg-sky-950">
+        <div class="min-h-screen">
             @include('layouts.navigation')
+            <livewire:utils.notification.notification />
 
             <!-- Page Heading -->
             @if (isset($header))
-                <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                <header class="shadow">
+                    <div class="px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
                         {{ $header }}
                     </div>
                 </header>
