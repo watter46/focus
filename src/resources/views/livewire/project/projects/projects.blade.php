@@ -136,8 +136,8 @@
                                         1{{-- {{ $project->tasks_count }} --}}
                                     </p>
 
-                                    <p class="w-28 {{ $project->label['class'] }}">
-                                        {{ $project->label['text'] }}
+                                    <p class="w-28 {{ $project->labelData->get('class') }}">
+                                        {{ $project->labelData->get('text') }}
                                     </p>
                                 </div>
                             </div>

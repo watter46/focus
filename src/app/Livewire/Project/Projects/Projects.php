@@ -6,19 +6,63 @@ use Exception;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
+use Illuminate\Support\Collection;
 
 use App\Livewire\Project\NewProject\NewProject;
 use App\Livewire\Project\Projects\Progress\Progress;
-use App\Livewire\Utils\Label\Label;
+use App\Livewire\Utils\Label\SortLabelPresenter;
 use App\Livewire\Utils\Message\Message;
-use App\Livewire\Project\Projects\ProjectsFormableTrait;
+use App\UseCases\Project\SortProjects\SortProjectsCommand;
+use App\UseCases\Project\SortProjects\SortProjectsUseCase;
 
 
 final class Projects extends Component
 {
     use WithPagination;
-    use ProjectsFormableTrait;
+
+    /**
+     * privateにすると、何の型でも許されるせいなのか、
+     * ソートしながらページネーションできなくなるのでpublicにする
+     *
+     * @var Collection<array{label: string, progress: string}> $options
+     */
+    public Collection $options;
+    public Collection $label;
+    public Collection $progress;
+    public Collection $LABELS;
+
+    private readonly SortProjectsUseCase $sortProjects;
+    private readonly SortLabelPresenter  $presenter;
+
+    public function boot(
+        SortProjectsUseCase $sortProjects,
+        SortLabelPresenter  $presenter
+    ) {
+        $this->sortProjects = $sortProjects;
+        $this->presenter    = $presenter;
+    }
+
+    public function mount(): void
+    {
+        $this->options  = collect(['label' => '', 'progress' => '']);
+        $this->progress = collect();
+        $this->LABELS   = $this->presenter->labels();
+        $this->label    = $this->presenter->unselected();
+    }
     
+    /**
+     * Progressの選択数を1以下に保つ
+     *
+     * @return void
+     */
+    public function updatedProgress(): void
+    {
+        if ($this->progress->count() > 1) {
+            $this->progress->shift();
+        }
+    }
+    
+    #[Layout('layouts.app')]
     /**
      * Presenterから$this->project(プロパティ)に一度入れてから、renderに渡していたが、
      * ページネーションのほかのページに飛べなかったので、Presenterでオプションの有無で
@@ -26,11 +70,12 @@ final class Projects extends Component
      *
      * @return void
      */
-    #[Layout('layouts.app')]
     public function render()
-    {        
+    {                
         return view('livewire.project.projects.projects', [
-            'projects' => $this->sortProjects->execute($this->options)
+            'projects' => $this->sortProjects->execute(
+                new SortProjectsCommand($this->options)
+            )
         ]);
     }
     
@@ -42,7 +87,7 @@ final class Projects extends Component
      */
     public function toProjectDetailPage(string $projectId): void
     {
-        $this->redirectRoute('projectDetail.project-detail', $projectId);
+        $this->redirectRoute('project.detail', $projectId);
     }
 
     /**
@@ -63,7 +108,9 @@ final class Projects extends Component
      */
     public function sortLabel(string $selectedLabel): void
     {
-        $this->label = Label::Sort()->change($this->label->get('text'), $selectedLabel);
+        $this->label = $this
+                        ->presenter
+                        ->change($this->label, $selectedLabel);
 
         $this->options->put('label', $this->label->get('text'));
     }
@@ -82,7 +129,7 @@ final class Projects extends Component
             $this->options->put('progress', $newProgress->value);
 
         } catch (Exception $e) {
-            $this->notify(Message::createErrorMessage($e->getMessage()));
+            $this->notify(Message::createErrorMessage($e));
         }
     }
 }
