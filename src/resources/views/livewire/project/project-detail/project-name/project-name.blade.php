@@ -14,7 +14,7 @@
             class="flex items-center h-16"
             x-data="{
                 isEdit: false,
-                isComplete: @entangle('isComplete')
+                isComplete: @entangle('form.isComplete')
             }"
             @close-project-name-input.window="isEdit = false">
             <div class="w-full">
@@ -24,7 +24,7 @@
                         type="text"
                         id="projectName-display"
                         class="w-full text-4xl text-white border-0 outline-none cursor-auto focus:border-transparent focus:ring-0 bg-inherit"
-                        value="{{ $projectName }}"
+                        value="{{ $form->projectName }}"
                         readonly
                     >
                 </label>
@@ -34,7 +34,7 @@
                     class="relative rounded-lg p-0.5 border-gray-300 appearance-none dark:bg-gray-800 dark:border-gray-600"
                     x-show="isEdit"
                     x-cloak>
-                    @error('projectName')
+                    @error('form.projectName')
                         <p class="absolute text-red-700 bottom-full">{{ $message }}</p>
                     @enderror
                     
@@ -45,7 +45,7 @@
                             id="projectNameInput"
                             type="text"
                             placeholder="ProjectName"
-                            wire:model="projectName"
+                            wire:model="form.projectName"
                             wire:keydown.ctrl.enter.prevent="update"
                             @focus-end.window="$el.focus()"
                         >
@@ -100,7 +100,7 @@
                 <button
                     type="button"
                     class="flex items-center justify-center w-32 px-3 py-2 mx-2 text-sm font-medium text-center text-white rounded-lg bg-sky-600 dark:focus:ring-sky-500 hover:bg-sky-500"
-                    wire:click="inComplete"
+                    wire:click="incomplete"
                     x-show="isComplete"
                     x-cloak>
                     <x-icons.incomplete-button />

@@ -4,15 +4,13 @@ namespace App\Livewire\Project\ProjectDetail\ProjectName;
 
 use Exception;
 use Livewire\Component;
-use Livewire\Attributes\Rule;
 use Livewire\Attributes\Locked;
 
-use App\Models\Project;
-use App\UseCases\Project\CompleteProject\CompleteProjectUseCase;
 use App\UseCases\Project\FetchProject\FetchProjectUseCase;
+use App\UseCases\Project\CompleteProject\CompleteProjectUseCase;
 use App\UseCases\Project\IncompleteProject\IncompleteProjectUseCase;
-use App\UseCases\Project\ProjectCommand;
 use App\UseCases\Project\UpdateProjectName\UpdateProjectNameUseCase;
+use App\UseCases\Project\ProjectCommand;
 use App\Livewire\Project\NewProject\NewProject;
 use App\Livewire\Project\Projects\Projects;
 use App\Livewire\Utils\Message\Message;
@@ -21,30 +19,25 @@ use App\Livewire\Utils\Message\Message;
 final class ProjectName extends Component
 {
     #[Locked]
-    public Project $project;
-    
-    #[Locked]
     public string $projectId;
     
-    #[Rule('string|required|max:50')]
-    public string $projectName;
-    public bool   $isComplete;
+    public ProjectNameForm $form;
 
     private readonly FetchProjectUseCase      $fetchProject;
     private readonly UpdateProjectNameUseCase $updateProjectName;
     private readonly CompleteProjectUseCase   $completeProject;
-    private readonly IncompleteProjectUseCase $inCompleteProject;
+    private readonly IncompleteProjectUseCase $incompleteProject;
 
     public function boot(
         FetchProjectUseCase      $fetchProject,
         UpdateProjectNameUseCase $updateProjectName,
         CompleteProjectUseCase   $completeProject,
-        InCompleteProjectUseCase $inCompleteProject
+        IncompleteProjectUseCase $incompleteProject
     ) {
         $this->fetchProject      = $fetchProject;
         $this->updateProjectName = $updateProjectName;
         $this->completeProject   = $completeProject;
-        $this->inCompleteProject = $inCompleteProject;
+        $this->incompleteProject = $incompleteProject;
     }
 
     public function mount()
@@ -53,14 +46,7 @@ final class ProjectName extends Component
         
         $project = $this->fetchProject->execute($command);
 
-        $this->setProperty($project);
-    }
-
-    private function setProperty(Project $project)
-    {
-        $this->project     = $project;
-        $this->projectName = $project->project_name;
-        $this->isComplete  = $project->is_complete;
+        $this->form->setProperty($project);
     }
     
     public function render()
@@ -80,14 +66,15 @@ final class ProjectName extends Component
 
             $command = new ProjectCommand(
                 projectId: $this->projectId,
-                name: $this->projectName
+                name: $this->form->projectName
             );
 
             $project = $this->updateProjectName->execute($command);
 
-            $this->setProperty($project);
+            $this->form->setProperty($project);
             
             $this->notify(Message::createSavedMessage());
+            
             $this->dispatch('close-project-name-input');
 
         } catch (Exception $e) {
@@ -107,8 +94,6 @@ final class ProjectName extends Component
 
             $this->completeProject->execute($command);
 
-            $this->notify(Message::createSavedMessage());
-
             $this->toProjectsPage();
 
         } catch (Exception $e) {
@@ -121,14 +106,14 @@ final class ProjectName extends Component
      *
      * @return void
      */
-    public function inComplete(): void
+    public function incomplete(): void
     {
         try {
             $command = new ProjectCommand($this->projectId);
             
-            $project = $this->inCompleteProject->execute($command);
+            $project = $this->incompleteProject->execute($command);
             
-            $this->setProperty($project);
+            $this->form->setProperty($project);
 
             $this->notify(Message::createSavedMessage());
 
