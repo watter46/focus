@@ -1,18 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace App\Livewire\Utils\Label;
+namespace App\Livewire\Utils\Label\Presenters;
 
 use Exception;
 use Illuminate\Support\Collection;
 
 use App\Livewire\Utils\Label\Enum\LabelType;
+use App\Livewire\Utils\Label\Enum\PurposeType;
 use App\Livewire\Utils\Label\Enum\ShapeType;
+use App\Livewire\Utils\Label\LabelInterface;
 
 
-final readonly class SortLabelPresenter
-{
-    const SHAPE_TYPE = ShapeType::Circle;
-    
+final readonly class SelectLabelPresenter implements LabelInterface
+{    
     public function __construct()
     {
         //
@@ -29,18 +29,15 @@ final readonly class SortLabelPresenter
                 ->reject(fn(LabelType $type) => $type === $type::Unselected)
                 ->map(fn(LabelType $type) => $this->toViewData($type));
     }
-    
+
     /**
-     * unselectedのラベルを生成する
+     * Noneのラベルを生成する
      *
      * @return Collection
      */
-    public function unselected(): Collection
+    public function defaultLabel(): Collection
     {
-        return collect([
-            'text'  => '',
-            'class' => ''
-        ]);
+        return $this->toViewData(LabelType::None);
     }
         
     /**
@@ -48,20 +45,18 @@ final readonly class SortLabelPresenter
      *
      * @param  Collection $currentLabel
      * @param  string $selectedLabel
-     * @return Collection
+     * @return LabelType
      */
-    public function change(Collection $currentLabel, string $selectedLabel): Collection
+    public function change(Collection $currentLabel, string $selectedLabel): LabelType
     {        
         $current  = LabelType::tryFrom($currentLabel->get('text'));
         $selected = LabelType::tryFrom($selectedLabel);
 
         $this->isValidOrThrow($current, $selected);
         
-        $label = $current === $selected
-                ? LabelType::Unselected
-                : $selected;
-        
-        return $this->toViewData($label);
+        return $current === $selected
+                    ? LabelType::None
+                    : $selected;
     }
     
     /**
@@ -72,13 +67,9 @@ final readonly class SortLabelPresenter
      */
     public function toViewData(LabelType $label): Collection
     {
-        if ($label === LabelType::Unselected) {
-            return $this->unselected();
-        }
-        
         return collect([
             'text'  => $label->value,
-            'class' => $label->colorCss().' '.self::SHAPE_TYPE->css()
+            'class' => $label->colorCss().' '.$this->shape()->css()
         ]);
     }
     
@@ -95,5 +86,15 @@ final readonly class SortLabelPresenter
         if ($isValid) return;
 
         throw new Exception('不正なラベルタイプです。');
+    }
+
+    public function supports(PurposeType $purpose): bool
+    {
+        return $purpose === PurposeType::select;
+    }
+
+    public function shape(): ShapeType
+    {
+        return ShapeType::Circle;
     }
 }
