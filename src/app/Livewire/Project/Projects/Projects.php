@@ -10,7 +10,11 @@ use Illuminate\Support\Collection;
 
 use App\Livewire\Project\NewProject\NewProject;
 use App\Livewire\Project\Projects\Progress\Progress;
-use App\Livewire\Utils\Label\SortLabelPresenter;
+use App\Livewire\Utils\Label\Enum\LabelType;
+use App\Livewire\Utils\Label\Enum\PurposeType;
+use App\Livewire\Utils\Label\LabelCommand;
+use App\Livewire\Utils\Label\LabelInterface;
+use App\Livewire\Utils\Label\ReadLabelInterface;
 use App\Livewire\Utils\Message\Message;
 use App\UseCases\Project\SortProjects\SortProjectsCommand;
 use App\UseCases\Project\SortProjects\SortProjectsUseCase;
@@ -20,34 +24,25 @@ final class Projects extends Component
 {
     use WithPagination;
 
-    /**
-     * privateにすると、何の型でも許されるせいなのか、
-     * ソートしながらページネーションできなくなるのでpublicにする
-     *
-     * @var Collection<array{label: string, progress: string}> $options
-     */
-    public Collection $options;
-    public Collection $label;
-    public Collection $progress;
-    public Collection $LABELS;
+    public ProjectsForm $form;
 
     private readonly SortProjectsUseCase $sortProjects;
-    private readonly SortLabelPresenter  $presenter;
+    private readonly LabelInterface     $sortLabelPresenter;
+    private readonly ReadLabelInterface $displayLabelPresenter;
 
     public function boot(
         SortProjectsUseCase $sortProjects,
-        SortLabelPresenter  $presenter
+        LabelCommand $command
     ) {
         $this->sortProjects = $sortProjects;
-        $this->presenter    = $presenter;
+        $this->sortLabelPresenter = $command->execute(PurposeType::sort);
+        $this->displayLabelPresenter = $command->execute(PurposeType::display);
     }
 
     public function mount(): void
-    {
-        $this->options  = collect(['label' => '', 'progress' => '']);
-        $this->progress = collect();
-        $this->LABELS   = $this->presenter->labels();
-        $this->label    = $this->presenter->unselected();
+    {        
+        $this->form->LABELS = $this->sortLabelPresenter->labels();
+        $this->form->label  = $this->sortLabelPresenter->defaultLabel();
     }
     
     /**
@@ -55,26 +50,24 @@ final class Projects extends Component
      *
      * @return void
      */
-    public function updatedProgress(): void
+    public function updatedForm(): void
     {
-        if ($this->progress->count() > 1) {
-            $this->progress->shift();
-        }
+        $this->form->forceProgressLimit();
     }
     
     #[Layout('layouts.app')]
     /**
-     * Presenterから$this->project(プロパティ)に一度入れてから、renderに渡していたが、
-     * ページネーションのほかのページに飛べなかったので、Presenterでオプションの有無で
+     * sortLabelPresenterから$this->project(プロパティ)に一度入れてから、renderに渡していたが、
+     * ページネーションのほかのページに飛べなかったので、sortLabelPresenterでオプションの有無で
      * Sortか通常の取得かを判定するようにする。
      *
      * @return void
      */
     public function render()
-    {                
+    {
         return view('livewire.project.projects.projects', [
             'projects' => $this->sortProjects->execute(
-                new SortProjectsCommand($this->options)
+                new SortProjectsCommand($this->form->options)
             )
         ]);
     }
@@ -108,11 +101,13 @@ final class Projects extends Component
      */
     public function sortLabel(string $selectedLabel): void
     {
-        $this->label = $this
-                        ->presenter
-                        ->change($this->label, $selectedLabel);
+        $newLabel = $this
+                    ->sortLabelPresenter
+                    ->change($this->form->label, $selectedLabel);
 
-        $this->options->put('label', $this->label->get('text'));
+        $this->form->label = $this->sortLabelPresenter->toViewData($newLabel);
+        
+        $this->form->setLabel($newLabel);
     }
 
     /**
@@ -124,12 +119,34 @@ final class Projects extends Component
     public function sortProgress(string $progress): void
     {
         try {
-            $newProgress = Progress::get($this->options->get('progress'), $progress);
+            $newProgress = Progress::get($this->form->options->getProgress(), $progress);
 
-            $this->options->put('progress', $newProgress->value);
+            $this->form->setProgress($newProgress);
 
         } catch (Exception $e) {
             $this->notify(Message::createErrorMessage($e));
         }
+    }
+    
+    /**
+     * 同じラベルか判定する
+     *
+     * @param  Collection $label
+     * @return bool
+     */
+    private function isSame(Collection $label): bool
+    {
+        return $label->get('text') === $this->form->label->get('text');
+    }
+        
+    /**
+     * ラベルの種類からViewデータを作成する
+     *
+     * @param  LabelType $label
+     * @return Collection
+     */
+    private function labelData(LabelType $label): Collection
+    {
+        return $this->displayLabelPresenter->toViewData($label);
     }
 }

@@ -43,16 +43,18 @@
                                     <div class="absolute right-0 flex items-center cursor-pointer top-full">
                                         <div class="bg-gray-800 border border-gray-400 rounded-lg w-44">
                                             <p class="px-2 py-3 text-sm font-medium text-white pointer-events-none">Sort Label</p>
-                                            @foreach ($LABELS as $LABEL)
+                                            @foreach ($form->LABELS as $LABEL)
                                                 <div class="label-hover flex p-1.5 text-xs text-white border-t border-gray-700 hover:bg-sky-800"
                                                     wire:click="sortLabel('{{ $LABEL->get('text') }}')"
                                                     @click="isOpen = false">
-                                                    @if ($LABEL->get('text') !== $label->get('text'))
+                                                    @if (!$this->isSame($LABEL))
                                                         <span class="{{ $LABEL->get('class') }}"></span>
                                                         <p class="label-text">
                                                             {{ $LABEL->get('text') }}
                                                         </p>
-                                                    @else
+                                                    @endif
+
+                                                    @if ($this->isSame($LABEL))
                                                         <span class="{{ $LABEL->get('class') }}"></span>
                                                         <p class="label-text-selected">
                                                             {{ $LABEL->get('text') }}
@@ -91,7 +93,7 @@
                                                     type="checkbox"
                                                     value="completed"
                                                     wire:change="sortProgress($event.target.value)"
-                                                    wire:model="progress"
+                                                    wire:model="form.progress"
                                                     @change="isOpen = false">
                                                 <p class="w-full ml-3 text-white" id="progressCompleted">
                                                     Completed
@@ -104,7 +106,7 @@
                                                     type="checkbox"
                                                     value="all"
                                                     wire:change="sortProgress($event.target.value)"
-                                                    wire:model="progress"
+                                                    wire:model="form.progress"
                                                     @change="isOpen = false">
                                                 <p class="w-full ml-3 text-white" id="progressAll">
                                                     All
@@ -136,8 +138,8 @@
                                         1{{-- {{ $project->tasks_count }} --}}
                                     </p>
 
-                                    <p class="w-28 {{ $project->labelData->get('class') }}">
-                                        {{ $project->labelData->get('text') }}
+                                    <p class="w-28 {{ $this->labelData($project->label)->get('class') }}">
+                                        {{ $this->labelData($project->label)->get('text') }}
                                     </p>
                                 </div>
                             </div>

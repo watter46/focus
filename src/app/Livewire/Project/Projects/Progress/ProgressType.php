@@ -5,7 +5,7 @@ namespace App\Livewire\Project\Projects\Progress;
 
 enum ProgressType: string
 {
-    case All        = 'all';
-    case Completed  = 'completed';
+    case All = 'all';
+    case Completed = 'completed';
     case Unselected = '';
 }

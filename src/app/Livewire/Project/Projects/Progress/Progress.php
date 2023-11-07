@@ -14,19 +14,16 @@ final readonly class Progress
         //
     }
 
-    public static function get(string $currentProgress, string $selectedProgress): ProgressType
+    public static function get(ProgressType $current, string $selectedProgress): ProgressType
     {
-        $current  = ProgressType::tryFrom($currentProgress);
         $selected = ProgressType::tryFrom($selectedProgress);
 
-        if (!$current || !$selected) {
+        if (!$selected) {
             throw new Exception('不正なProgressタイプです。');
         }
-
-        $isSame = $current === $selected;
         
-        return $isSame 
-                ? ProgressType::Unselected
-                : $selected;
+        return $current === $selected
+                    ? ProgressType::Unselected
+                    : $selected;
     }
 }
