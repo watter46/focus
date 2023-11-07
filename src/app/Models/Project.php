@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Task;
 use App\Livewire\Utils\Label\Enum\LabelType;
 use App\Livewire\Project\Projects\Progress\ProgressType;
-use App\UseCases\Project\CreateProjectCommand;
+use App\UseCases\Project\CreateProject\CreateProjectCommand;
 use App\UseCases\Project\ProjectCommand;
 use Illuminate\Support\Facades\Auth;
 
