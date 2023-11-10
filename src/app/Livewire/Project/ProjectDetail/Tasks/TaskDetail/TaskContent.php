@@ -22,13 +22,13 @@ final class TaskContent extends Component
 
     public function boot(TaskContentPresenter $presenter)
     {
-        $this->presenter  = $presenter;
+        $this->presenter = $presenter;
     }
 
     public function render()
     {
         return view('livewire.project.project-detail.tasks.task-detail.task-content', [
-            'tasks' => $this->presenter->formatTask($this->content)
+            'tasks' => $this->presenter->execute($this->content)
         ]);
     }
 }

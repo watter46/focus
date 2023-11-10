@@ -2,16 +2,17 @@
 
 namespace App\Livewire\Project\ProjectDetail\Tasks\TaskDetail\Format;
 
-use Illuminate\Support\Collection;
+use App\Livewire\Project\ProjectDetail\Tasks\TaskDetail\Format\Formatted;
+use App\Livewire\Project\ProjectDetail\Tasks\TaskDetail\Format\Splitted;
 
 
 interface FormatterInterface
 {
     public function format(
         string $content,
-        Collection $formatted,
+        Formatted $formatted,
         int $index,
-        Collection $contents): Collection;
+        Splitted $contents): Formatted;
     
     public function supports(string $content): bool;
 }

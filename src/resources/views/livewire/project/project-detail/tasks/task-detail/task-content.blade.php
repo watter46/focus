@@ -7,7 +7,7 @@
     @foreach ($tasks as $task)
         @if ($task->has('ul'))
             <ul id="sortable">
-                @foreach ($task['ul'] as $command)
+                @foreach ($task->get('ul') as $command)
                     <li x-id="['task-checkbox']">
                         <div class="flex items-center">
                             <span class="px-3 py-2 opacity-0 cursor-pointer hover:opacity-100 handle">:::</span>
@@ -17,18 +17,18 @@
                                     type="checkbox"
                                     :id="$id('task-checkbox')"
                                     class="mr-2"
-                                    @checked($command["isChecked"])
+                                    @checked($command->get('isChecked'))
                                     @click="check($el)">
                                 
-                                <span id="taskText">{{ $command['command'] }}</span>
+                                <span id="taskText">{{ $command->get('command') }}</span>
                             </div>
                         </div>
 
                         @if ($command->has('comments'))
-                            @foreach ($command['comments'] as $comment)
+                            @foreach ($command->get('comments') as $comment)
                                 <div class="ml-14">
                                     <p id="taskText" class="break-words">
-                                        {{ $comment['comment'] }}
+                                        {{ $comment }}
                                     </p>
                                 </div>
                             @endforeach
@@ -43,7 +43,7 @@
         @endif
 
         @if ($task->has('comment'))
-            <p id="taskText" class="break-words">{{ $task['comment'] }}</p>
+            <p id="taskText" class="break-words">{{ $task->get('comment') }}</p>
         @endif
     @endforeach
 </div>
