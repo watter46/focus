@@ -1,22 +1,20 @@
-<?php
+<?php declare(strict_types=1);
 
-declare(strict_types=1);
-
-namespace App\Livewire\Project\ProjectDetail\Tasks\TaskDetail\Format;
+namespace App\Livewire\Project\ProjectDetail\Tasks\TaskDetail\Format\Formatter;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
 
-use App\Livewire\Project\ProjectDetail\Tasks\TaskDetail\Format\FormatInterface;
+use App\Livewire\Project\ProjectDetail\Tasks\TaskDetail\Format\FormatterInterface;
 
 
-final class Command implements FormatInterface
+final class CommandFormatter implements FormatterInterface
 {
-    public const UNCHECKED_COMMAND = '- [ ] ';
-    public const CHECKED_COMMAND   = '- [|] ';
+    public const UNCHECKED = '- [ ] ';
+    public const CHECKED   = '- [|] ';
     public const COMMAND_LENGTH = 6;
-
+    
     /**
      * コマンドを変換
      *
@@ -39,6 +37,14 @@ final class Command implements FormatInterface
         return $formatted->push($result);
     }
 
+    public function supports(string $content): bool
+    {
+        return Str::startsWith($content, [
+            self::UNCHECKED,
+            self::CHECKED
+        ]);
+    }
+
     /**
      * コマンドか判定
      *
@@ -48,8 +54,8 @@ final class Command implements FormatInterface
     public function is(string $task): bool
     {
         return Str::startsWith($task, [
-            self::UNCHECKED_COMMAND,
-            self::CHECKED_COMMAND
+            self::UNCHECKED,
+            self::CHECKED
         ]);
     }
 
@@ -64,12 +70,12 @@ final class Command implements FormatInterface
         $command = Str::of($task)->substr(0, self::COMMAND_LENGTH)->toString();
 
         return match ($command) {
-            self::UNCHECKED_COMMAND => collect([
-                'command' => Str::after($task, self::UNCHECKED_COMMAND),
+            self::UNCHECKED => collect([
+                'command' => Str::after($task, self::UNCHECKED),
                 'isChecked' => false
             ]),
-            self::CHECKED_COMMAND => collect([
-                'command' => Str::after($task, self::CHECKED_COMMAND),
+            self::CHECKED => collect([
+                'command' => Str::after($task, self::CHECKED),
                 'isChecked' => true
             ])
         };
