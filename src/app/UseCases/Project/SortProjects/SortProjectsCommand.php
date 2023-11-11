@@ -2,23 +2,25 @@
 
 namespace App\UseCases\Project\SortProjects;
 
-use Illuminate\Support\Collection;
+use App\Livewire\Project\Projects\Options;
+use App\Livewire\Project\Projects\Progress\ProgressType;
+use App\Livewire\Utils\Label\Enum\LabelType;
 
 
 final readonly class SortProjectsCommand
 {
-    public function __construct(private readonly Collection $options)
+    public function __construct(private readonly Options $options)
     {
         //
     }
 
-    public function process(): string
+    public function label(): LabelType
     {
-        return $this->options->get('progress');
+        return $this->options->getLabel();
     }
-
-    public function label(): string
+    
+    public function process(): ProgressType
     {
-        return $this->options->get('label');
+        return $this->options->getProgress();
     }
 }

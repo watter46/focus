@@ -2,52 +2,40 @@
 
 namespace App\Livewire\Project\NewProject;
 
-use App\Livewire\Utils\Label\SelectLabelPresenter;
 use Exception;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
-use Livewire\Attributes\Rule;
 use Illuminate\Support\Collection;
 
-use App\Livewire\Utils\Label\SortLabelPresenter;
 use App\Livewire\Utils\Message\Message;
-use App\UseCases\Project\CreateProjectCommand;
-use App\UseCases\Project\CreateProjectUseCase;
+use App\UseCases\Project\CreateProject\CreateProjectCommand;
+use App\UseCases\Project\CreateProject\CreateProjectUseCase;
+use App\Livewire\Utils\Label\Enum\PurposeType;
+use App\Livewire\Utils\Label\LabelCommand;
+use App\Livewire\Utils\Label\LabelInterface;
 
 
 final class NewProject extends Component
 {
-    #[Rule('required|string|max:50')]
-    public $projectName = '';
-
-    #[Rule('required|string')]
-    public $name = '';
-
-    #[Rule('required|string')]
-    public $content = '';
-
-    #[Rule('required|string')]
-    public $selectedLabel;
-
-    public Collection $label;
-    public Collection $LABELS;
+    public NewProjectForm $form;
 
     private readonly CreateProjectUseCase $createProject;
-    private readonly SelectLabelPresenter $presenter;
+    private readonly LabelInterface $presenter;
 
     public function boot(
         CreateProjectUseCase $createProject,
-        SelectLabelPresenter $presenter
+        LabelCommand $command
     ) {
         $this->createProject = $createProject;
-        $this->presenter     = $presenter;
+        
+        $this->presenter = $command->execute(PurposeType::select);
     }
 
     public function mount()
     {
-        $this->label         = $this->presenter->none();
-        $this->selectedLabel = $this->label->get('text');
-        $this->LABELS        = $this->presenter->labels();
+        $this->form->label  = $this->presenter->defaultLabel();
+        $this->form->LABELS = $this->presenter->labels();
+        $this->form->selectedLabel = $this->form->label->get('text');
     }
 
     #[Layout('layouts.app')]
@@ -64,7 +52,7 @@ final class NewProject extends Component
      */
     public function isSame(Collection $label): bool
     {
-        return $this->label->get('text') === $label->get('text');
+        return $this->form->label->get('text') === $label->get('text');
     }
 
     /**
@@ -78,10 +66,10 @@ final class NewProject extends Component
         
         try {
             $command = new CreateProjectCommand(
-                projectName: $this->projectName,
-                label: $this->presenter->of($this->selectedLabel),
-                name: $this->name,
-                content: $this->content
+                projectName: $this->form->projectName,
+                label: $this->form->selectedLabel,
+                name: $this->form->name,
+                content: $this->form->content
             );
             
             $project = $this->createProject->execute($command);
@@ -101,13 +89,13 @@ final class NewProject extends Component
      * @param  string $selected
      * @return void
      */
-    public function update(string $selected): void
+    public function updateLabel(string $selected): void
     {        
         try {
-            $label = $this->presenter->change($this->label, $selected);
+            $label = $this->presenter->change($this->form->label, $selected);
 
-            $this->label = $this->presenter->toViewData($label);
-            $this->selectedLabel = $this->label->get('text');
+            $this->form->label = $this->presenter->toViewData($label);
+            $this->form->selectedLabel = $this->form->label->get('text');
 
         } catch (Exception $e) {
             $this->notify(Message::createErrorMessage($e));

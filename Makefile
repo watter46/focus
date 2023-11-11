@@ -73,7 +73,7 @@ tinker:
 	docker compose exec app php artisan tinker
 test:
 	docker compose exec app php artisan config:clear
-	docker compose exec app php artisan test tests/Feature/Livewire/Project/NewProject/
+	docker compose exec app php artisan test tests/Feature/Livewire/Project/ProjectDetail/Tasks/TaskDetail/
 optimize:
 	docker compose exec app php artisan optimize
 optimize-clear:

@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace App\UseCases\Project\RegisterTask;
+namespace App\UseCases\Task\RegisterTask;
 
 use Exception;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\Project;
 use App\Models\Task;
-use App\UseCases\Project\RegisterTask\TaskInProject;
+use App\UseCases\Task\RegisterTask\TaskInProject;
 
 
 final readonly class RegisterTaskUseCase

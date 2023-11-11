@@ -22,12 +22,7 @@ class AppServiceProvider extends ServiceProvider
      * Bootstrap any application services.
      */
     public function boot(): void
-    {
-        Model::shouldBeStrict(
-            // It will only be enabled outside of production, though.
-            ! app()->isProduction()
-        );
-        
+    {        
         Component::macro('notify', function (Message $message) {
 
             $this->dispatch('notify', message: $message->toArray());

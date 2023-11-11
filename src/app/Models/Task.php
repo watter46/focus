@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 use App\Models\Project;
-use App\UseCases\Project\RegisterTask\TaskInProject;
+use App\UseCases\Task\RegisterTask\TaskInProject;
 use App\UseCases\Task\UpdateTask\UpdateTaskCommand;
 
 /**

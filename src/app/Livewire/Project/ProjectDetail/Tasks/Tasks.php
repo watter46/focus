@@ -14,8 +14,8 @@ use App\Livewire\Utils\Message\Message;
 use App\UseCases\Project\FetchProjectTaskIdList\FetchProjectTaskIdListUseCase;
 use App\UseCases\Project\FetchProjectIncompleteTaskIdList\FetchProjectIncompleteTaskIdListUseCase;
 use App\UseCases\Project\ProjectCommand;
-use App\UseCases\Project\RegisterTask\RegisterTaskUseCase;
-use App\UseCases\Project\RegisterTask\TaskInProject;
+use App\UseCases\Task\RegisterTask\RegisterTaskUseCase;
+use App\UseCases\Task\RegisterTask\TaskInProject;
 
 
 final class Tasks extends Component

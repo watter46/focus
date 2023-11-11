@@ -4,14 +4,16 @@ window.sortable = (el) => sortable(el);
 window.check    = (el) => check(el);
 
 const sortable = (el) => {
-    const sortableEl = el.querySelector('#sortable');
+    const sortableList = el.querySelectorAll('#sortable');
 
-    if (!sortableEl) return;
+    if (sortableList.length === 0) return;
     
-    Sortable.create(sortableEl, {
-        handle: '.handle',
-        animation: 300,
-        onUpdate: () => reorder(sortableEl)
+    sortableList.forEach(el => {
+        Sortable.create(el, {
+            handle: '.handle',
+            animation: 300,
+            onUpdate: () => reorder(el)
+        });
     });
 }
 
@@ -27,10 +29,6 @@ const check = (el) => {
 
     Livewire.find(componentId)
             .call('updateCheckbox', createNewContents(el));
-}
-
-const getComponentId = (el) => {
-    return el.closest('#task').getAttribute('wire:id');
 }
 
 const createNewContents = (el) => {

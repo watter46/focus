@@ -18,7 +18,7 @@
 
             @foreach ($LABELS as $LABEL)
                 <div class="label-hover flex p-1.5 text-xs text-white border-t border-gray-700 hover:bg-sky-800"
-                    wire:click.prevent="update('{{ $LABEL->get('text') }}')"
+                    wire:click.prevent="updateLabel('{{ $LABEL->get('text') }}')"
                     @click="isOpen = false">
 
                     @if (!$this->isSame($LABEL))

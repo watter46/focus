@@ -1,18 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace App\Livewire\Utils\Label;
+namespace App\Livewire\Utils\Label\Presenters;
 
 use Exception;
 use Illuminate\Support\Collection;
 
 use App\Livewire\Utils\Label\Enum\LabelType;
+use App\Livewire\Utils\Label\Enum\PurposeType;
 use App\Livewire\Utils\Label\Enum\ShapeType;
+use App\Livewire\Utils\Label\LabelInterface;
 
 
-final readonly class SelectLabelPresenter
-{
-    const SHAPE_TYPE = ShapeType::Circle;
-    
+final readonly class SortLabelPresenter implements LabelInterface
+{    
     public function __construct()
     {
         //
@@ -29,24 +29,15 @@ final readonly class SelectLabelPresenter
                 ->reject(fn(LabelType $type) => $type === $type::Unselected)
                 ->map(fn(LabelType $type) => $this->toViewData($type));
     }
-
+    
     /**
-     * Noneのラベルを生成する
+     * unselectedのラベルを生成する
      *
      * @return Collection
      */
-    public function none(): Collection
+    public function defaultLabel(): Collection
     {
-        return $this->toViewData(LabelType::None);
-    }
-
-    public function of(string $label): LabelType
-    {
-        $converted = LabelType::tryFrom($label);
-
-        $this->isValidOrThrow($converted);
-        
-        return $converted;
+        return $this->toViewData(LabelType::Unselected);
     }
         
     /**
@@ -64,8 +55,8 @@ final readonly class SelectLabelPresenter
         $this->isValidOrThrow($current, $selected);
         
         return $current === $selected
-                ? LabelType::None
-                : $selected;
+                    ? LabelType::Unselected
+                    : $selected;
     }
     
     /**
@@ -76,9 +67,16 @@ final readonly class SelectLabelPresenter
      */
     public function toViewData(LabelType $label): Collection
     {
+        if ($label === LabelType::Unselected) {
+            return collect([
+                'text'  => $label->value,
+                'class' => ''
+            ]);
+        }
+        
         return collect([
             'text'  => $label->value,
-            'class' => $label->colorCss().' '.self::SHAPE_TYPE->css()
+            'class' => $label->colorCss().' '.$this->shape()->css()
         ]);
     }
     
@@ -95,5 +93,15 @@ final readonly class SelectLabelPresenter
         if ($isValid) return;
 
         throw new Exception('不正なラベルタイプです。');
+    }
+
+    public function supports(PurposeType $purpose): bool
+    {
+        return $purpose === PurposeType::sort;
+    }
+
+    public function shape(): ShapeType
+    {
+        return ShapeType::Circle;
     }
 }

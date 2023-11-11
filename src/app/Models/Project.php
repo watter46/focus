@@ -11,7 +11,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 use App\Models\Task;
 use App\Livewire\Utils\Label\Enum\LabelType;
-use App\UseCases\Project\CreateProjectCommand;
+use App\Livewire\Project\Projects\Progress\ProgressType;
+use App\UseCases\Project\CreateProject\CreateProjectCommand;
 use App\UseCases\Project\ProjectCommand;
 use Illuminate\Support\Facades\Auth;
 
@@ -107,14 +108,12 @@ final class Project extends Model
      * ラベルでソート
      *
      * @param  Builder<Project> $query
-     * @param  string $label
+     * @param  LabelType $label
      * @return void
      */
-    public function scopeLabelIs(Builder $query, string $label): void
+    public function scopeLabelIs(Builder $query, LabelType $label): void
     {
-        if (empty($label)) {
-            return;
-        }
+        if ($label === LabelType::Unselected) return;
 
         $query->where('label', $label);
     }
@@ -123,18 +122,16 @@ final class Project extends Model
      * 完了したプロジェクトをソート
      *
      * @param  Builder<Project> $query
-     * @param  string $progress
+     * @param  ProgressType $progress
      * @return void
      */
-    public function scopeProgressIs(Builder $query, string $progress): void
+    public function scopeProgressIs(Builder $query, ProgressType $progress): void
     {
-        if ($progress === 'completed') {
-            $query->withoutGlobalScope('completed')->where('is_complete', true);
-        }
-
-        if ($progress === 'all') {
-            $query->withoutGlobalScope('completed');
-        }
+        match($progress) {
+            ProgressType::All => $query,
+            ProgressType::Completed => $query->where('is_complete', true),
+            ProgressType::Unselected => $query->where('is_complete', false)
+        };
     }
 
     /**
