@@ -10,10 +10,12 @@ use App\Livewire\Project\Projects\Projects;
 use App\Livewire\Utils\Message\Message;
 use App\Models\Project;
 use App\Models\User;
-
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ProjectNameTest extends TestCase
 {
+    use RefreshDatabase;
+    
     public function test_レンダリングされるか()
     {
         $this->actingAs(User::factory()->create());

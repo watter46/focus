@@ -11,10 +11,12 @@ use App\Livewire\Utils\Label\Enum\LabelType;
 use App\Livewire\Utils\Label\Enum\PurposeType;
 use App\Livewire\Utils\Label\LabelCommand;
 use App\Livewire\Utils\Label\LabelPresenterResolver;
-
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 final class NewProjectTest extends TestCase
 {
+    use RefreshDatabase;
+    
     public function test_レンダリングされるか()
     {
         $this->actingAs(User::factory()->create());

@@ -94,7 +94,7 @@ class TaskDetail extends Component
      *
      * @return void
      */
-    public function inComplete(): void
+    public function incomplete(): void
     {
         try {
             $this->incompleteTask->execute($this->task);

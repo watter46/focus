@@ -3,16 +3,19 @@
 namespace Tests\Feature\Livewire\Project\ProjectDetail;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Livewire\Livewire;
 use Tests\TestCase;
 
-use App\Livewire\Project\ProjectDetail\ProjectDetail;
+
 use App\Models\Project;
 use App\Models\User;
+use App\Livewire\Project\ProjectDetail\ProjectDetail;
+
 
 class ProjectDetailTest extends TestCase
 {
+    use RefreshDatabase;
+    
     public function test_レンダリングしているか()
     {
         $this->actingAs(User::factory()->create());
