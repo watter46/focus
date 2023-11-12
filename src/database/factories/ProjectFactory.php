@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Database\Factories;
 
@@ -19,10 +19,9 @@ class ProjectFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => Auth::user()->id,
             'project_name' => 'test',
-            'label' => LabelType::Idea,
-            'is_complete' => false
+            'label'        => LabelType::Idea,
+            'is_complete'  => false
         ];
     }
 }

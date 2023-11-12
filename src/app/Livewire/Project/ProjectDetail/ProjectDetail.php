@@ -30,6 +30,6 @@ final class ProjectDetail extends Component
      */
     public function toDevelopmentPage()
     {
-        return redirect("/development/{$this->projectId}");
+        return redirect("/developments/{$this->projectId}");
     }
 }

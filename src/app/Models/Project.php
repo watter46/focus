@@ -8,13 +8,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Auth;
 
 use App\Models\Task;
+use App\Models\Development;
 use App\Livewire\Utils\Label\Enum\LabelType;
 use App\Livewire\Project\Projects\Progress\ProgressType;
 use App\UseCases\Project\CreateProject\CreateProjectCommand;
 use App\UseCases\Project\ProjectCommand;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * @property string $id
@@ -43,6 +45,22 @@ final class Project extends Model
         'is_complete' => 'boolean',
         'label'       => LabelType::class
     ];
+
+    protected static function booted()
+    {
+        static::addGlobalScope('user', function (Builder $builder) {
+            $builder->where('user_id', Auth::user()->id);
+        });
+    }
+
+    public function createDevelopment(): self
+    {
+        $development = (new Development)->createDevelopment($this);
+
+        $this->setRelation('development', $development);
+
+        return $this;
+    }
 
     public function createProject(CreateProjectCommand $command): self
     {
@@ -135,7 +153,7 @@ final class Project extends Model
     }
 
     /**
-     * userRelation
+     * ユーザーを取得する
      *
      * @return BelongsTo<User, Project>
      */
@@ -145,7 +163,17 @@ final class Project extends Model
     }
 
     /**
-     * tasksRelation
+     * 開発を取得する
+     *
+     * @return HasOne
+     */
+    public function development(): HasOne
+    {
+        return $this->hasOne(Development::class);
+    }
+
+    /**
+     * タスクを全て取得する
      *
      * @return HasMany<Task>
      */
@@ -153,16 +181,21 @@ final class Project extends Model
     {
         return $this->hasMany(Task::class);
     }
-
+    
+    /**
+     * 未完了のタスクをすべて取得する
+     *
+     * @return HasMany
+     */
     public function incompleteTasks(): HasMany
     {
         return $this
-            ->hasMany(Task::class)
-            ->where('is_complete', false);
+                ->hasMany(Task::class)
+                ->where('is_complete', false);
     }
     
     /**
-     * withTaskCount
+     * タスク数と未完了のタスク数を取得する
      *
      * @param  Builder<Project> $query
      * @return void
