@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use App\Livewire\Project\NewProject\NewProject;
 use App\Livewire\Project\ProjectDetail\ProjectDetail;
 use App\Livewire\Project\Projects\Projects;
+use App\Livewire\Setting\Setting;
 
 Route::get('/', function () {
     return view('welcome');
@@ -28,6 +29,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/projects', Projects::class)->name('projects');
     Route::get('/projects/new', NewProject::class)->name('project.new');
     Route::get('/projects/{projectId}', ProjectDetail::class)->name('project.detail');
+
+    Route::get('/settings', Setting::class)->name('settings');
 });
 
 require __DIR__.'/auth.php';
