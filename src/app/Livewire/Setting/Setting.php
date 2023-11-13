@@ -64,7 +64,7 @@ final class Setting extends Component
             $command = new SettingCommand($this->defaultTime, $this->breakTime);
         
             $setting = $this->updateSetting->execute($command);
-
+            
             $this->set($setting);
                         
             $this->notify(Message::createSavedMessage());

@@ -2,29 +2,30 @@
 
 namespace App\UseCases\Setting\Fetch;
 
+use Exception;
 use Illuminate\Support\Collection;
 
 use App\Models\Setting;
+use App\UseCases\Setting\SettingEntity;
 
 
 final readonly class FetchSettingUseCase
-{
-    const DEFAULT_TIME = 30;
-    
-    public function __construct()
+{    
+    public function __construct(private SettingEntity $entity)
     {
         //
     }
 
     public function execute(): Setting
     {
-        /** @var Collection $setting */
-        $setting = Setting::get();
+        try {
+            /** @var Collection $setting */
+            $setting = Setting::latest()->first();
 
-        if ($setting->isEmpty()) {
-            return (new Setting)->createSetting();
+            return $setting ?? $this->entity->create()->toModel();
+
+        } catch (Exception $e) {
+            throw $e;
         }
-
-        return $setting->first();
     }
 }

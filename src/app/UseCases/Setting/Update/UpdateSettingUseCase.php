@@ -7,11 +7,12 @@ use Illuminate\Support\Facades\DB;
 
 use App\Models\Setting;
 use App\UseCases\Setting\SettingCommand;
+use App\UseCases\Setting\SettingEntity;
 
 
 final readonly class UpdateSettingUseCase
 {
-    public function __construct()
+    public function __construct(private SettingEntity $entity)
     {
         //
     }
@@ -20,19 +21,24 @@ final readonly class UpdateSettingUseCase
     {
         try {
             /** @var Setting $setting */
-            $setting = Setting::get()->first() ?? new Setting;
-            
-            $setting
-                ->updateSetting(
-                    defaultTime: $command->defaultTime(),
-                    breakTime: $command->breakTime()
-                );
+            $setting = Setting::get()->first();
 
-            DB::transaction(function () use ($setting) {
-                $setting->save();
+            $updated = $setting
+                ? $this
+                    ->entity
+                    ->reconstruct($setting)
+                    ->update($command)
+                    ->toModel()
+                : $this
+                    ->entity
+                    ->update($command)
+                    ->toModel();
+
+            DB::transaction(function () use ($updated) {
+                $updated->save();
             });
 
-            return $setting;
+            return $updated;
 
         } catch (Exception $e) {
             throw $e;

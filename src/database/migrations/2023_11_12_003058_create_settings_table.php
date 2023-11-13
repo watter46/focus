@@ -16,6 +16,7 @@ return new class extends Migration
             $table->ulid('id')->primary();
             $table->integer('default_time');
             $table->integer('break_time');
+            $table->timestamps();
 
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
         });
