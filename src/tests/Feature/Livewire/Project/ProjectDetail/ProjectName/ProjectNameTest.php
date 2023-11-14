@@ -9,6 +9,7 @@ use App\Livewire\Project\ProjectDetail\ProjectName\ProjectName;
 use App\Livewire\Project\Projects\Projects;
 use App\Livewire\Utils\Message\Message;
 use App\Models\Project;
+use App\Models\Task;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -30,7 +31,9 @@ class ProjectNameTest extends TestCase
     {
         $this->actingAs(User::factory()->create());
 
-        $project = Project::factory()->create();
+        $project = Project::factory()
+                        ->has(Task::factory())
+                        ->create();
 
         Livewire::test(ProjectName::class, ['projectId' => $project->id])
             ->set('form.projectName', 'updatedProjectName')
@@ -44,7 +47,9 @@ class ProjectNameTest extends TestCase
     {
         $this->actingAs(User::factory()->create());
 
-        $project = Project::factory()->create();
+        $project = Project::factory()
+                        ->has(Task::factory())
+                        ->create();
 
         Livewire::test(ProjectName::class, ['projectId' => $project->id])
             ->call('complete')
@@ -59,6 +64,7 @@ class ProjectNameTest extends TestCase
             ->state([
                 'is_complete' => true
             ])
+            ->has(Task::factory())
             ->create();
 
         Livewire::test(ProjectName::class, ['projectId' => $project->id])

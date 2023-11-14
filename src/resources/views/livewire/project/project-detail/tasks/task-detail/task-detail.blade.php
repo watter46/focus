@@ -46,7 +46,7 @@
             {{-- InCompleteButton --}}
             <button class="w-full hover:bg-cyan-500" x-show="isComplete" x-cloak>
                 <p class="px-3 text-start py-1.5 text-gray-300 font-medium cursor-pointer"
-                    wire:click="inComplete">
+                    wire:click="incomplete">
                     InComplete
                 </p>
             </button>

@@ -14,8 +14,7 @@ use App\Livewire\Utils\Message\Message;
 use App\UseCases\Project\FetchProjectTaskIdList\FetchProjectTaskIdListUseCase;
 use App\UseCases\Project\FetchProjectIncompleteTaskIdList\FetchProjectIncompleteTaskIdListUseCase;
 use App\UseCases\Project\ProjectCommand;
-use App\UseCases\Task\RegisterTask\RegisterTaskUseCase;
-use App\UseCases\Task\RegisterTask\TaskInProject;
+use App\UseCases\Task\AddTask\AddTaskUseCase;
 
 
 final class Tasks extends Component
@@ -36,18 +35,18 @@ final class Tasks extends Component
 
     public bool $isShowAll = false;
 
-    private readonly RegisterTaskUseCase $registerTask;
+    private readonly AddTaskUseCase $addTask;
     private readonly FetchProjectTaskIdListUseCase $fetchProjectTaskIdList;
     private readonly FetchProjectIncompleteTaskIdListUseCase $fetchProjectIncompleteTaskIdList;
 
     public function boot(
         FetchProjectTaskIdListUseCase $fetchProjectTaskIdList,
-        RegisterTaskUseCase $registerTask,
+        AddTaskUseCase $addTask,
         FetchProjectIncompleteTaskIdListUseCase $fetchProjectIncompleteTaskIdList,
     ) {
         $this->fetchProjectTaskIdList = $fetchProjectTaskIdList;
         $this->fetchProjectIncompleteTaskIdList = $fetchProjectIncompleteTaskIdList;
-        $this->registerTask = $registerTask;
+        $this->addTask = $addTask;
     }
 
     public function render()
@@ -107,13 +106,13 @@ final class Tasks extends Component
         $this->validate();
         
         try {
-            $validator = new TaskInProject(
+            $command = new ProjectCommand(
+                $this->projectId,
                 name: $this->name,
-                content: $this->content,
-                projectId: $this->projectId
+                content: $this->content
             );
             
-            $this->registerTask->execute($validator);
+            $this->addTask->execute($command);
             
             $this->notify(Message::createSavedMessage());
 

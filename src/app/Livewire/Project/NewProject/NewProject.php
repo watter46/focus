@@ -2,17 +2,18 @@
 
 namespace App\Livewire\Project\NewProject;
 
+use App\Livewire\Utils\Label\Enum\LabelType;
 use Exception;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Illuminate\Support\Collection;
 
 use App\Livewire\Utils\Message\Message;
-use App\UseCases\Project\CreateProject\CreateProjectCommand;
 use App\UseCases\Project\CreateProject\CreateProjectUseCase;
 use App\Livewire\Utils\Label\Enum\PurposeType;
 use App\Livewire\Utils\Label\LabelCommand;
 use App\Livewire\Utils\Label\LabelInterface;
+use App\UseCases\Project\ProjectCommand;
 
 
 final class NewProject extends Component
@@ -65,9 +66,9 @@ final class NewProject extends Component
         $this->validate();
         
         try {
-            $command = new CreateProjectCommand(
+            $command = new ProjectCommand(
                 projectName: $this->form->projectName,
-                label: $this->form->selectedLabel,
+                label: LabelType::from($this->form->selectedLabel),
                 name: $this->form->name,
                 content: $this->form->content
             );

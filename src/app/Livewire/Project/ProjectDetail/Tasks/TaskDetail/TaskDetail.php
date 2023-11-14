@@ -13,6 +13,7 @@ use App\Livewire\Utils\Message\Message;
 use App\UseCases\Task\CompleteTask\CompleteTaskUseCase;
 use App\UseCases\Task\FetchTask\FetchTaskUseCase;
 use App\UseCases\Task\IncompleteTask\IncompleteTaskUseCase;
+use App\UseCases\Task\TaskCommand;
 use App\UseCases\Task\UpdateTask\UpdateTaskCommand;
 use App\UseCases\Task\UpdateTask\UpdateTaskUseCase;
 
@@ -78,7 +79,9 @@ class TaskDetail extends Component
     public function complete(): void
     {
         try {
-            $this->completeTask->execute($this->task);
+            $command = new TaskCommand($this->taskId);
+            
+            $this->completeTask->execute($command);
 
             $this->dispatch('refetch');
             
@@ -97,7 +100,9 @@ class TaskDetail extends Component
     public function incomplete(): void
     {
         try {
-            $this->incompleteTask->execute($this->task);
+            $command = new TaskCommand($this->taskId);
+
+            $this->incompleteTask->execute($command);
 
             $this->dispatch('refetch');
                 
@@ -118,10 +123,10 @@ class TaskDetail extends Component
         $this->validate();
 
         try {
-            $command = new UpdateTaskCommand(
+            $command = new TaskCommand(
                 $this->taskId,
-                $this->name,
-                $this->content
+                name: $this->name,
+                content: $this->content
             );
             
             $this->updateTask->execute($command);
@@ -145,8 +150,9 @@ class TaskDetail extends Component
     public function updateCheckbox(string $content): void
     {
         try {
-            $command = new UpdateTaskCommand(
-                taskId: $this->taskId,
+            $command = new TaskCommand(
+                $this->taskId,
+                name: $this->name,
                 content: $content
             );
     
@@ -171,8 +177,9 @@ class TaskDetail extends Component
     public function reorder(string $content): void
     {
         try {
-            $command = new UpdateTaskCommand(
-                taskId: $this->taskId,
+            $command = new TaskCommand(
+                $this->taskId,
+                name: $this->name,
                 content: $content
             );
     
