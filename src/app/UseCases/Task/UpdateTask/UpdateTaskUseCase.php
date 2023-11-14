@@ -6,7 +6,7 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\Task;
-use App\UseCases\Task\UpdateTask\UpdateTaskCommand;
+use App\UseCases\Task\TaskCommand;
 
 
 final readonly class UpdateTaskUseCase
@@ -16,17 +16,22 @@ final readonly class UpdateTaskUseCase
         //
     }
 
-    public function execute(UpdateTaskCommand $command): void
+    public function execute(TaskCommand $command): Task
     {
         try {
             /** @var Task $task */
             $task = Task::findOrFail($command->taskId());
 
-            $task->updateTask($command);
+            $updated = $task
+                        ->toEntity()
+                        ->update($command)
+                        ->toModel();
             
-            DB::transaction(function () use ($task) {                
-                $task->save();
+            DB::transaction(function () use ($updated) {                
+                $updated->save();
             });
+
+            return $updated;
             
         } catch (Exception $e) {
             throw $e;

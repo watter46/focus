@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\Task;
+use App\UseCases\Task\TaskCommand;
 
 
 final readonly class IncompleteTaskUseCase
@@ -15,14 +16,22 @@ final readonly class IncompleteTaskUseCase
         //
     }
 
-    public function execute(Task $task): void
+    public function execute(TaskCommand $command): Task
     {
         try {
-            DB::transaction(function () use ($task) {
-                $task->incomplete();
+            /** @var Task $task */
+            $task = Task::findOrFail($command->taskId());
 
-                $task->save();
+            $incompleted = $task
+                            ->toEntity()
+                            ->incomplete()
+                            ->toModel();
+            
+            DB::transaction(function () use ($incompleted) {
+                $incompleted->save();
             });
+
+            return $incompleted;
             
         } catch (Exception $e) {
             throw $e;

@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\Task;
+use App\UseCases\Task\TaskCommand;
 
 
 final readonly class CompleteTaskUseCase
@@ -15,14 +16,22 @@ final readonly class CompleteTaskUseCase
         //       
     }
 
-    public function execute(Task $task): void
+    public function execute(TaskCommand $command): Task
     {
         try {
-            DB::transaction(function () use ($task) {
-                $task->complete();
+            /** @var Task $task */
+            $task = Task::findOrFail($command->taskId());
 
-                $task->save();
+            $completed = $task
+                        ->toEntity()
+                        ->complete()
+                        ->toModel();
+                        
+            DB::transaction(function () use ($completed) {
+                $completed->save();
             });
+
+            return $completed;
 
         } catch (Exception $e) {
             throw $e;
