@@ -14,8 +14,7 @@ use App\Models\Task;
 use App\Models\Development;
 use App\Livewire\Utils\Label\Enum\LabelType;
 use App\Livewire\Project\Projects\Progress\ProgressType;
-use App\UseCases\Project\CreateProject\CreateProjectCommand;
-use App\UseCases\Project\ProjectCommand;
+use App\UseCases\Project\ProjectEntity;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
@@ -52,73 +51,32 @@ final class Project extends Model
             $builder->where('user_id', Auth::user()->id);
         });
     }
-
-    public function createDevelopment(): self
+    
+    /**
+     * エンティティに変換する
+     *
+     * @return ProjectEntity
+     */
+    public function toEntity(): ProjectEntity
     {
-        $development = (new Development)->createDevelopment($this);
-
-        $this->setRelation('development', $development);
-
-        return $this;
+        return (new ProjectEntity)->reconstruct($this);
     }
-
-    public function createProject(CreateProjectCommand $command): self
+    
+    /**
+     * モデルに変換する
+     *
+     * @return self
+     */
+    public function fromEntity(
+        string $projectName,
+        LabelType $label,
+        bool $isComplete): self
     {
         $this->user_id      = Auth::user()->id;
-        $this->project_name = $command->projectName();
-        $this->label        = $command->label();
-        $this->is_complete  = false;
+        $this->project_name = $projectName;
+        $this->label        = $label;
+        $this->is_complete  = $isComplete;
         
-        return $this;
-    }
-    
-    /**
-     * プロジェクト名を更新する
-     *
-     * @param  ProjectCommand $command
-     * @return self
-     */
-    public function updateProjectName(ProjectCommand $command): self
-    {
-        $this->project_name = $command->name();
-        
-        return $this;
-    }
-
-    /**
-     * ラベルを更新する
-     *
-     * @param  ProjectCommand $command
-     * @return self
-     */
-    public function updateLabel(ProjectCommand $command): self
-    {
-        $this->label = $command->label();
-        
-        return $this;
-    }
-    
-    /**
-     * プロジェクトを完了する
-     *
-     * @return self
-     */
-    public function complete(): self
-    {
-        $this->is_complete = true;
-
-        return $this;
-    }
-
-    /**
-     * プロジェクトを未完了にする
-     *
-     * @return self
-     */
-    public function incomplete(): self
-    {
-        $this->is_complete = false;
-
         return $this;
     }
 

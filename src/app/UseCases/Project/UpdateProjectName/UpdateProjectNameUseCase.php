@@ -8,11 +8,11 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Models\Project;
 use App\UseCases\Project\ProjectCommand;
-
+use App\UseCases\Project\ProjectEntity;
 
 final readonly class UpdateProjectNameUseCase
 {
-    public function __construct()
+    public function __construct(private ProjectEntity $entity)
     {
         //
     }
@@ -29,13 +29,16 @@ final readonly class UpdateProjectNameUseCase
             /** @var Project $project */
             $project = Project::findOrFail($command->projectId());
 
-            $project->updateProjectName($command);
+            $updated = $project
+                        ->toEntity()
+                        ->updateProjectName($command)
+                        ->toModel();
                         
-            DB::transaction(function () use ($project) {
-                $project->save();
+            DB::transaction(function () use ($updated) {
+                $updated->save();
             });
 
-            return $project;
+            return $updated;
 
         } catch (ModelNotFoundException $e) {
             throw new ModelNotFoundException('プロジェクトが見つかりませんでした。');

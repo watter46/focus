@@ -6,12 +6,13 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\Project;
-use App\Models\Task;
+use App\UseCases\Project\ProjectEntity;
+use App\UseCases\Project\ProjectCommand;
 
 
 final readonly class CreateProjectUseCase
 {
-    public function __construct()
+    public function __construct(private ProjectEntity $entity)
     {
         //
     }
@@ -19,18 +20,20 @@ final readonly class CreateProjectUseCase
     /**
      * プロジェクトとタスクを作成する
      *
-     * @param CreateProjectCommand $command
+     * @param ProjectCommand $command
      * @return Project
      */
-    public function execute(CreateProjectCommand $command): Project
+    public function execute(ProjectCommand $command): Project
     {
         try {
-            $project = (new Project)->createProject($command);
-            $task    = (new Task)->createTask($command->taskInProjectCommand());
+            $project = $this
+                        ->entity
+                        ->create($command)
+                        ->toModel();
 
-            DB::transaction(function () use ($project, $task) {        
+            DB::transaction(function () use ($project) {        
                 $project->save();
-                $project->tasks()->save($task);
+                $project->tasks()->save($project->tasks);
             });
 
             return $project;

@@ -27,16 +27,20 @@ final readonly class UpdateLabelUseCase
         try {
             /** @var Project $project */
             $project = Project::findOrFail($command->projectId());
-
-            $project->updateLabel($command);
             
-            DB::transaction(function () use ($project) {                
-                $project->save();
+            $updated = $project
+                        ->toEntity()
+                        ->updateLabel($command)
+                        ->toModel();
+                        
+            DB::transaction(function () use ($updated) {                
+                $updated->save();
             });
 
-            return $project;
+            return $updated;
 
         } catch (Exception $e) {
+            dd($e);
             throw $e;
         }
     }

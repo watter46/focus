@@ -17,21 +17,10 @@ final readonly class SortProjectsUseCase
 
     public function execute(SortProjectsCommand $command): LengthAwarePaginator
     {
-        $project = Project::query()
+        return Project::query()
                         ->tasksCount()
                         ->progressIs($command->process())
                         ->labelIs($command->label())
                         ->paginate(5);
-        // $project
-        //     ->getCollection()
-        //     ->transform(function (Project $project) {
-        //         $project->labelData = $this->presenter->toViewData($project->label);
-                
-        //         unset($project->label);
-                
-        //         return $project;
-        //     });
-
-        return $project;
     }
 }

@@ -23,13 +23,16 @@ final readonly class CompleteProjectUseCase
             /** @var Project $project */
             $project = Project::findOrFail($command->projectId());
 
-            $project->complete();
-            
-            DB::transaction(function () use ($project) {
-                $project->save();
+            $completed = $project
+                            ->toEntity()
+                            ->complete()
+                            ->toModel();
+                            
+            DB::transaction(function () use ($completed) {
+                $completed->save();
             });
 
-            return $project;
+            return $completed;
 
         } catch (ModelNotFoundException $e) {
             throw new ModelNotFoundException('プロジェクトが見つかりませんでした。');
