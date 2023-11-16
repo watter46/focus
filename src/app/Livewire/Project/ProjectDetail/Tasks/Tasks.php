@@ -11,8 +11,8 @@ use Illuminate\Support\Str;
 
 use App\Models\Project;
 use App\Livewire\Utils\Message\Message;
-use App\UseCases\Project\FetchProjectTaskIdList\FetchProjectTaskIdListUseCase;
-use App\UseCases\Project\FetchProjectIncompleteTaskIdList\FetchProjectIncompleteTaskIdListUseCase;
+use App\UseCases\Project\FetchProjectIncompleteTasksUseCase;
+use App\UseCases\Project\FetchProjectTasksUseCase;
 use App\UseCases\Project\ProjectCommand;
 use App\UseCases\Task\AddTask\AddTaskUseCase;
 
@@ -36,22 +36,22 @@ final class Tasks extends Component
     public bool $isShowAll = false;
 
     private readonly AddTaskUseCase $addTask;
-    private readonly FetchProjectTaskIdListUseCase $fetchProjectTaskIdList;
-    private readonly FetchProjectIncompleteTaskIdListUseCase $fetchProjectIncompleteTaskIdList;
+    private readonly FetchProjectTasksUseCase $fetchProjectTasks;
+    private readonly FetchProjectIncompleteTasksUseCase $fetchProjectIncompleteTasks;
 
     public function boot(
-        FetchProjectTaskIdListUseCase $fetchProjectTaskIdList,
         AddTaskUseCase $addTask,
-        FetchProjectIncompleteTaskIdListUseCase $fetchProjectIncompleteTaskIdList,
+        FetchProjectTasksUseCase $fetchProjectTasks,
+        FetchProjectIncompleteTasksUseCase $fetchProjectIncompleteTasks
     ) {
-        $this->fetchProjectTaskIdList = $fetchProjectTaskIdList;
-        $this->fetchProjectIncompleteTaskIdList = $fetchProjectIncompleteTaskIdList;
         $this->addTask = $addTask;
+        $this->fetchProjectTasks = $fetchProjectTasks;
+        $this->fetchProjectIncompleteTasks = $fetchProjectIncompleteTasks;
     }
 
     public function render()
     {
-        $this->fetchIdList();
+        $this->fetch();
 
         return view('livewire.project.project-detail.tasks.tasks');
     }
@@ -84,15 +84,15 @@ final class Tasks extends Component
      *
      * @return void
      */
-    public function fetchIdList(): void
+    public function fetch(): void
     {
         $command = new ProjectCommand($this->projectId);
         
         $this->refresh = (string) Str::ulid();
 
         $this->project = $this->isShowAll
-                ? $this->fetchProjectTaskIdList->execute($command)
-                : $this->fetchProjectIncompleteTaskIdList->execute($command);
+                ? $this->fetchProjectTasks->execute($command)
+                : $this->fetchProjectIncompleteTasks->execute($command);
     }
 
     #[On('add')]

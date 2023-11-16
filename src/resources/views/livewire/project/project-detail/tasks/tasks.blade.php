@@ -26,10 +26,11 @@
         </button>
     </div>
 
-    @foreach ($project->tasks as $taskId)
+    @foreach ($project->tasks as $task)
         <livewire:project.project-detail.tasks.task-detail.task-detail
-            :$taskId
-            :wire:key="$refresh" />
+            :$task
+            :isComplete="$task->is_complete"
+            :key="$refresh" />
     @endforeach
 
     <div class="w-full mt-3 border-b-2 border-gray-400"></div>

@@ -64,7 +64,7 @@
 
         {{-- Content --}}
         <livewire:project.project-detail.tasks.task-detail.task-content
-            :$taskId
+            :taskId="$task->id"
             :projectId="$task->project_id"
             :content="$task->content"
             :wire:key="$task->content" />
@@ -170,6 +170,6 @@
     </div>
 
     @push('editor-script')
-        @vite(['resources/js/Project/editor.js'])
+        @vite(['resources/js/project/editor.js'])
     @endpush
 </div>

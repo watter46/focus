@@ -123,11 +123,23 @@ final class Project extends Model
     /**
      * 開発を取得する
      *
+     * @return HasMany
+     */
+    public function developments(): HasMany
+    {
+        return $this->hasMany(Development::class);
+    }
+    
+    /**
+     * 最新の開発を取得する
+     *
      * @return HasOne
      */
-    public function development(): HasOne
+    public function latestDevelopment(): HasOne
     {
-        return $this->hasOne(Development::class);
+        return $this
+                ->hasOne(Development::class)
+                ->latestOfMany();
     }
 
     /**
@@ -150,6 +162,25 @@ final class Project extends Model
         return $this
                 ->hasMany(Task::class)
                 ->where('is_complete', false);
+    }
+    
+
+    /**
+     * 開発できる状態か判定する
+     *
+     * @return bool
+     */
+    public function canDevelop(): bool
+    {
+        if (!$this->latestDevelopment) {
+            return false;
+        }
+        
+        if ($this->latestDevelopment->is_complete) {
+            return false;
+        }
+
+        return true;
     }
     
     /**
