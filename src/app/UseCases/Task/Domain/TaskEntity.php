@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace App\UseCases\Task;
+namespace App\UseCases\Task\Domain;
 
 use App\Constants\TaskContentConstants;
 use App\Constants\TaskNameConstants;
 use App\Models\Task;
-use App\UseCases\Project\ProjectCommand;
+use App\UseCases\Project\Domain\ProjectCommand;
 
 
 final class TaskEntity

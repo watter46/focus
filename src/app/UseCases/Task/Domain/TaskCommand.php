@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace App\UseCases\Task;
+namespace App\UseCases\Task\Domain;
 
 use Exception;
 use Illuminate\Support\Str;

@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace App\UseCases\Task\IncompleteTask;
+namespace App\UseCases\Task;
 
 use Exception;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\Task;
-use App\UseCases\Task\TaskCommand;
+use App\UseCases\Task\Domain\TaskCommand;
 
 
 final readonly class IncompleteTaskUseCase

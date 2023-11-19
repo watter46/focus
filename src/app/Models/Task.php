@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 use App\Models\Project;
-use App\UseCases\Task\TaskEntity;
+use App\UseCases\Task\Domain\TaskEntity;
 
 /**
  * @property string $id

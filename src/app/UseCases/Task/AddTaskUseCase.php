@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace App\UseCases\Task\AddTask;
+namespace App\UseCases\Task;
 
 use Exception;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\Project;
-use App\UseCases\Project\ProjectCommand;
+use App\UseCases\Project\Domain\ProjectCommand;
 
 
 final readonly class AddTaskUseCase

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace App\UseCases\Task\FetchIncompleteTasks;
+namespace App\UseCases\Task;
 
 use Exception;
 use Illuminate\Support\Collection;
