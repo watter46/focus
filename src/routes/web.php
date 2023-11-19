@@ -3,11 +3,13 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\OAuth\CallbackFromProviderController;
 use App\Http\Controllers\OAuth\RedirectToProviderController;
-use App\Livewire\Development\Development;
+
 use Illuminate\Support\Facades\Route;
 
 use App\Livewire\Project\NewProject\NewProject;
 use App\Livewire\Project\ProjectDetail\ProjectDetail;
+use App\Livewire\Development\Development;
+use App\Livewire\InDevelopments\InDevelopments;
 use App\Livewire\Project\Projects\Projects;
 use App\Livewire\Setting\Setting;
 
@@ -32,6 +34,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/new', NewProject::class)->name('project.new');
         Route::get('/{projectId}', ProjectDetail::class)->name('project.detail');
     });
+
+    Route::get('/inDevelopments', InDevelopments::class)->name('inDevelopments');
 
     Route::get('/settings', Setting::class)->name('settings');
     
