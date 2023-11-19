@@ -10,20 +10,16 @@ use Livewire\Attributes\On;
 
 use App\Models\Task;
 use App\Livewire\Utils\Message\Message;
-use App\UseCases\Task\CompleteTask\CompleteTaskUseCase;
-use App\UseCases\Task\FetchTask\FetchTaskUseCase;
-use App\UseCases\Task\IncompleteTask\IncompleteTaskUseCase;
-use App\UseCases\Task\UpdateTask\UpdateTaskCommand;
-use App\UseCases\Task\UpdateTask\UpdateTaskUseCase;
+use App\UseCases\Task\Domain\TaskCommand;
+use App\UseCases\Task\CompleteTaskUseCase;
+use App\UseCases\Task\IncompleteTaskUseCase;
+use App\UseCases\Task\UpdateTaskUseCase;
 
 
-class TaskDetail extends Component
+final class TaskDetail extends Component
 {
     #[Locked]
     public Task $task;
-
-    #[Locked]
-    public string $taskId;
 
     public bool $isComplete;
     public bool $isEdit = false;
@@ -37,37 +33,27 @@ class TaskDetail extends Component
     private readonly CompleteTaskUseCase   $completeTask;
     private readonly IncompleteTaskUseCase $incompleteTask;
     private readonly UpdateTaskUseCase     $updateTask;
-    private readonly FetchTaskUseCase      $fetchTask;
-
+    
     public function boot(
         CompleteTaskUseCase   $completeTask,
         InCompleteTaskUseCase $incompleteTask,
-        UpdateTaskUseCase     $updateTask,
-        FetchTaskUseCase      $fetchTask
+        UpdateTaskUseCase     $updateTask
     ) {
         $this->completeTask   = $completeTask;
         $this->incompleteTask = $incompleteTask;
         $this->updateTask     = $updateTask;
-        $this->fetchTask      = $fetchTask;
     }
 
     public function mount()
     {
-        $this->fetchTask();
+        $this->name       = $this->task->name;
+        $this->content    = $this->task->content;
+        $this->isComplete = $this->task->is_complete;
     }
 
     public function render()
     {
         return view('livewire.project.project-detail.tasks.task-detail.task-detail');
-    }
-
-    private function fetchTask(): void
-    {
-        $this->task = $this->fetchTask->execute($this->taskId);
-
-        $this->isComplete = $this->task->is_complete;
-        $this->name       = $this->task->getRawOriginal('name');
-        $this->content    = $this->task->getRawOriginal('content');
     }
 
     /**
@@ -78,7 +64,9 @@ class TaskDetail extends Component
     public function complete(): void
     {
         try {
-            $this->completeTask->execute($this->task);
+            $command = new TaskCommand($this->task->id);
+            
+            $this->completeTask->execute($command);
 
             $this->dispatch('refetch');
             
@@ -97,7 +85,9 @@ class TaskDetail extends Component
     public function incomplete(): void
     {
         try {
-            $this->incompleteTask->execute($this->task);
+            $command = new TaskCommand($this->task->id);
+
+            $this->incompleteTask->execute($command);
 
             $this->dispatch('refetch');
                 
@@ -118,10 +108,10 @@ class TaskDetail extends Component
         $this->validate();
 
         try {
-            $command = new UpdateTaskCommand(
-                $this->taskId,
-                $this->name,
-                $this->content
+            $command = new TaskCommand(
+                $this->task->id,
+                name: $this->name,
+                content: $this->content
             );
             
             $this->updateTask->execute($command);
@@ -145,8 +135,9 @@ class TaskDetail extends Component
     public function updateCheckbox(string $content): void
     {
         try {
-            $command = new UpdateTaskCommand(
-                taskId: $this->taskId,
+            $command = new TaskCommand(
+                $this->task->id,
+                name: $this->name,
                 content: $content
             );
     
@@ -171,8 +162,9 @@ class TaskDetail extends Component
     public function reorder(string $content): void
     {
         try {
-            $command = new UpdateTaskCommand(
-                taskId: $this->taskId,
+            $command = new TaskCommand(
+                $this->task->id,
+                name: $this->name,
                 content: $content
             );
     

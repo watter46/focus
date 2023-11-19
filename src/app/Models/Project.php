@@ -8,13 +8,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Auth;
 
 use App\Models\Task;
+use App\Models\Development;
 use App\Livewire\Utils\Label\Enum\LabelType;
 use App\Livewire\Project\Projects\Progress\ProgressType;
-use App\UseCases\Project\CreateProject\CreateProjectCommand;
-use App\UseCases\Project\ProjectCommand;
-use Illuminate\Support\Facades\Auth;
+use App\UseCases\Project\Domain\ProjectEntity;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * @property string $id
@@ -44,63 +45,38 @@ final class Project extends Model
         'label'       => LabelType::class
     ];
 
-    public function createProject(CreateProjectCommand $command): self
+    protected static function booted()
+    {
+        static::addGlobalScope('user', function (Builder $builder) {
+            $builder->where('user_id', Auth::user()->id);
+        });
+    }
+    
+    /**
+     * エンティティに変換する
+     *
+     * @return ProjectEntity
+     */
+    public function toEntity(): ProjectEntity
+    {
+        return (new ProjectEntity)->reconstruct($this);
+    }
+    
+    /**
+     * モデルに変換する
+     *
+     * @return self
+     */
+    public function fromEntity(
+        string $projectName,
+        LabelType $label,
+        bool $isComplete): self
     {
         $this->user_id      = Auth::user()->id;
-        $this->project_name = $command->projectName();
-        $this->label        = $command->label();
-        $this->is_complete  = false;
+        $this->project_name = $projectName;
+        $this->label        = $label;
+        $this->is_complete  = $isComplete;
         
-        return $this;
-    }
-    
-    /**
-     * プロジェクト名を更新する
-     *
-     * @param  ProjectCommand $command
-     * @return self
-     */
-    public function updateProjectName(ProjectCommand $command): self
-    {
-        $this->project_name = $command->name();
-        
-        return $this;
-    }
-
-    /**
-     * ラベルを更新する
-     *
-     * @param  ProjectCommand $command
-     * @return self
-     */
-    public function updateLabel(ProjectCommand $command): self
-    {
-        $this->label = $command->label();
-        
-        return $this;
-    }
-    
-    /**
-     * プロジェクトを完了する
-     *
-     * @return self
-     */
-    public function complete(): self
-    {
-        $this->is_complete = true;
-
-        return $this;
-    }
-
-    /**
-     * プロジェクトを未完了にする
-     *
-     * @return self
-     */
-    public function incomplete(): self
-    {
-        $this->is_complete = false;
-
         return $this;
     }
 
@@ -135,7 +111,7 @@ final class Project extends Model
     }
 
     /**
-     * userRelation
+     * ユーザーを取得する
      *
      * @return BelongsTo<User, Project>
      */
@@ -145,7 +121,29 @@ final class Project extends Model
     }
 
     /**
-     * tasksRelation
+     * 開発を取得する
+     *
+     * @return HasMany
+     */
+    public function developments(): HasMany
+    {
+        return $this->hasMany(Development::class);
+    }
+    
+    /**
+     * 最新の開発を取得する
+     *
+     * @return HasOne
+     */
+    public function latestDevelopment(): HasOne
+    {
+        return $this
+                ->hasOne(Development::class)
+                ->latestOfMany();
+    }
+
+    /**
+     * タスクを全て取得する
      *
      * @return HasMany<Task>
      */
@@ -153,16 +151,40 @@ final class Project extends Model
     {
         return $this->hasMany(Task::class);
     }
-
+    
+    /**
+     * 未完了のタスクをすべて取得する
+     *
+     * @return HasMany
+     */
     public function incompleteTasks(): HasMany
     {
         return $this
-            ->hasMany(Task::class)
-            ->where('is_complete', false);
+                ->hasMany(Task::class)
+                ->where('is_complete', false);
+    }
+    
+
+    /**
+     * 開発できる状態か判定する
+     *
+     * @return bool
+     */
+    public function canDevelop(): bool
+    {
+        if (!$this->latestDevelopment) {
+            return false;
+        }
+        
+        if ($this->latestDevelopment->is_complete) {
+            return false;
+        }
+
+        return true;
     }
     
     /**
-     * withTaskCount
+     * タスク数と未完了のタスク数を取得する
      *
      * @param  Builder<Project> $query
      * @return void

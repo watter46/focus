@@ -9,8 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 use App\Models\Project;
-use App\UseCases\Task\RegisterTask\TaskInProject;
-use App\UseCases\Task\UpdateTask\UpdateTaskCommand;
+use App\UseCases\Task\Domain\TaskEntity;
 
 /**
  * @property string $id
@@ -29,6 +28,7 @@ class Task extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
+        'project_id',
         'name',
         'content',
         'is_complete'
@@ -47,56 +47,20 @@ class Task extends Model
     {
         return $this->belongsTo(Project::class);
     }
-    
-    /**
-     * タスクを完了する
-     *
-     * @return self
-     */
-    public function complete(): self
-    {
-        $this->is_complete = true;
 
-        return $this;
-    }
-    
-    /**
-     * タスクを未完了にする
-     *
-     * @return self
-     */
-    public function incomplete(): self
+    public function toEntity(): TaskEntity
     {
-        $this->is_complete = false;
-
-        return $this;
+        return (new TaskEntity)->reconstruct($this);
     }
-    
-    /**
-     * タスクを追加する
-     *
-     * @param  TaskInProject $validator
-     * @return self
-     */
-    public function createTask(TaskInProject $validator): self
+
+    public function fromEntity(
+        $name,
+        $content,
+        $isComplete): self
     {
-        $this->name = $validator->name();
-        $this->content = $validator->content();
-        $this->is_complete = false;
-
-        return $this;
-    }
-    
-    /**
-     * タスクを更新する
-     *
-     * @param  UpdateTaskCommand $command
-     * @return self
-     */
-    public function updateTask(UpdateTaskCommand $command): self
-    {        
-        $this->name    = $command->name()    ?? $this->name;
-        $this->content = $command->content() ?? $this->content;
+        $this->name        = $name;
+        $this->content     = $content;
+        $this->is_complete = $isComplete;
 
         return $this;
     }

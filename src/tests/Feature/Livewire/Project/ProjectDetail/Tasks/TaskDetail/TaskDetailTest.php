@@ -35,7 +35,7 @@ class TaskDetailTest extends TestCase
 
         $task = $project->incompleteTasks()->first();
 
-        Livewire::test(TaskDetail::class, ['taskId' => $task->id])
+        Livewire::test(TaskDetail::class, ['task' => $task])
             ->assertSet('name', 'name test')
             ->assertSet('content', 'content test')
             ->assertSet('isComplete', false)
@@ -59,7 +59,7 @@ class TaskDetailTest extends TestCase
         $task = $project->incompleteTasks()->first();
 
         // 初期値を設定できるか
-        $rendered = Livewire::test(TaskDetail::class, ['taskId' => $task->id])
+        $rendered = Livewire::test(TaskDetail::class, ['task' => $task])
             ->assertSet('name', 'name test')
             ->assertSet('content', 'content test')
             ->assertSet('isComplete', false)
@@ -89,7 +89,7 @@ class TaskDetailTest extends TestCase
         $task = $project->tasks()->first();
 
         // 初期値を設定できるか
-        $rendered = Livewire::test(TaskDetail::class, ['taskId' => $task->id])
+        $rendered = Livewire::test(TaskDetail::class, ['task' => $task])
             ->assertSet('name', 'name test')
             ->assertSet('content', 'content test')
             ->assertSet('isComplete', true)
@@ -119,7 +119,7 @@ class TaskDetailTest extends TestCase
         $task = $project->tasks()->first();
 
         // 初期値を設定できるか
-        $rendered = Livewire::test(TaskDetail::class, ['taskId' => $task->id])
+        $rendered = Livewire::test(TaskDetail::class, ['task' => $task])
             ->assertSet('name', 'name test')
             ->assertSet('content', 'content test')
             ->assertSet('isComplete', true)
@@ -158,7 +158,7 @@ class TaskDetailTest extends TestCase
         $task = $project->tasks()->first();
 
         // 初期値を設定できるか
-        $rendered = Livewire::test(TaskDetail::class, ['taskId' => $task->id])
+        $rendered = Livewire::test(TaskDetail::class, ['task' => $task])
             ->assertSet('name', 'name test')
             ->assertSet('content', $content)
             ->assertSet('isComplete', true)
@@ -191,7 +191,7 @@ class TaskDetailTest extends TestCase
         $task = $project->tasks()->first();
 
         // 初期値を設定できるか
-        $rendered = Livewire::test(TaskDetail::class, ['taskId' => $task->id])
+        $rendered = Livewire::test(TaskDetail::class, ['task' => $task])
             ->assertSet('name', 'name test')
             ->assertSet('content', $content)
             ->assertSet('isComplete', true)

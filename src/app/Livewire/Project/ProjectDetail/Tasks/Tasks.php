@@ -5,17 +5,17 @@ namespace App\Livewire\Project\ProjectDetail\Tasks;
 use Exception;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Rule;
-use Livewire\Component;
 use Livewire\Attributes\Locked;
+use Livewire\Component;
 use Illuminate\Support\Str;
 
 use App\Models\Project;
 use App\Livewire\Utils\Message\Message;
-use App\UseCases\Project\FetchProjectTaskIdList\FetchProjectTaskIdListUseCase;
-use App\UseCases\Project\FetchProjectIncompleteTaskIdList\FetchProjectIncompleteTaskIdListUseCase;
-use App\UseCases\Project\ProjectCommand;
-use App\UseCases\Task\RegisterTask\RegisterTaskUseCase;
-use App\UseCases\Task\RegisterTask\TaskInProject;
+use App\UseCases\Project\FetchProjectIncompleteTasksUseCase;
+use App\UseCases\Project\FetchProjectTasksUseCase;
+use App\UseCases\Project\Domain\ProjectCommand;
+use App\UseCases\Task\AddTaskUseCase;
+use Illuminate\Database\Eloquent\Collection;
 
 
 final class Tasks extends Component
@@ -25,6 +25,10 @@ final class Tasks extends Component
 
     #[Locked]
     public Project $project;
+
+    #[Locked]
+    /** @var Collection<int, Task> $tasks */
+    public Collection $tasks;
 
     public $refresh;
 
@@ -36,30 +40,30 @@ final class Tasks extends Component
 
     public bool $isShowAll = false;
 
-    private readonly RegisterTaskUseCase $registerTask;
-    private readonly FetchProjectTaskIdListUseCase $fetchProjectTaskIdList;
-    private readonly FetchProjectIncompleteTaskIdListUseCase $fetchProjectIncompleteTaskIdList;
+    private readonly AddTaskUseCase $addTask;
+    private readonly FetchProjectTasksUseCase $fetchProjectTasks;
+    private readonly FetchProjectIncompleteTasksUseCase $fetchProjectIncompleteTasks;
 
     public function boot(
-        FetchProjectTaskIdListUseCase $fetchProjectTaskIdList,
-        RegisterTaskUseCase $registerTask,
-        FetchProjectIncompleteTaskIdListUseCase $fetchProjectIncompleteTaskIdList,
+        AddTaskUseCase $addTask,
+        FetchProjectTasksUseCase $fetchProjectTasks,
+        FetchProjectIncompleteTasksUseCase $fetchProjectIncompleteTasks
     ) {
-        $this->fetchProjectTaskIdList = $fetchProjectTaskIdList;
-        $this->fetchProjectIncompleteTaskIdList = $fetchProjectIncompleteTaskIdList;
-        $this->registerTask = $registerTask;
+        $this->addTask = $addTask;
+        $this->fetchProjectTasks = $fetchProjectTasks;
+        $this->fetchProjectIncompleteTasks = $fetchProjectIncompleteTasks;
     }
 
     public function render()
     {
-        $this->fetchIdList();
+        $this->fetch();
 
         return view('livewire.project.project-detail.tasks.tasks');
     }
 
     #[On('fetch-project-incomplete-tasks')]    
     /**
-     * プロジェクト内の未完了のタスクIDリストを取得する
+     * プロジェクト内の未完了のタスクを取得する
      *
      * @return void
      */
@@ -70,7 +74,7 @@ final class Tasks extends Component
 
     #[On('fetch-project-tasks')]    
     /**
-     * プロジェクト内のタスクIDリストを全て取得する
+     * プロジェクト内のタスクを全て取得する
      *
      * @return void
      */
@@ -81,19 +85,23 @@ final class Tasks extends Component
     
     #[On('refetch')]    
     /**
-     * タスクIDリストを再度取得する
+     * タスクを再度取得する
      *
      * @return void
      */
-    public function fetchIdList(): void
+    public function fetch(): void
     {
         $command = new ProjectCommand($this->projectId);
         
         $this->refresh = (string) Str::ulid();
 
         $this->project = $this->isShowAll
-                ? $this->fetchProjectTaskIdList->execute($command)
-                : $this->fetchProjectIncompleteTaskIdList->execute($command);
+                ? $this->fetchProjectTasks->execute($command)
+                : $this->fetchProjectIncompleteTasks->execute($command);
+
+        $this->tasks = $this->isShowAll
+                ? $this->project->tasks
+                : $this->project->incompleteTasks;
     }
 
     #[On('add')]
@@ -107,13 +115,13 @@ final class Tasks extends Component
         $this->validate();
         
         try {
-            $validator = new TaskInProject(
+            $command = new ProjectCommand(
+                $this->projectId,
                 name: $this->name,
-                content: $this->content,
-                projectId: $this->projectId
+                content: $this->content
             );
             
-            $this->registerTask->execute($validator);
+            $this->addTask->execute($command);
             
             $this->notify(Message::createSavedMessage());
 

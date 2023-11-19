@@ -18,7 +18,7 @@ return new class extends Migration
             $table->boolean('is_complete');
             $table->timestamps();
 
-            $table->foreignUlid('project_id')->references('id')->on('projects')->onDelete('cascade');
+            $table->foreignUlid('project_id')->constrained()->onDelete('cascade');
         });
     }
 

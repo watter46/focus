@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\OAuth\CallbackFromProviderController;
 use App\Http\Controllers\OAuth\RedirectToProviderController;
+use App\Livewire\Development\Development;
 use Illuminate\Support\Facades\Route;
 
 use App\Livewire\Project\NewProject\NewProject;
@@ -26,11 +27,17 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::get('/projects', Projects::class)->name('projects');
-    Route::get('/projects/new', NewProject::class)->name('project.new');
-    Route::get('/projects/{projectId}', ProjectDetail::class)->name('project.detail');
+    Route::prefix('projects')->group(function () {
+        Route::get('/', Projects::class)->name('projects');
+        Route::get('/new', NewProject::class)->name('project.new');
+        Route::get('/{projectId}', ProjectDetail::class)->name('project.detail');
+    });
 
     Route::get('/settings', Setting::class)->name('settings');
+    
+    Route::prefix('developments')->group(function () {
+        Route::get('/{projectId}', Development::class)->name('development');
+    });
 });
 
 require __DIR__.'/auth.php';

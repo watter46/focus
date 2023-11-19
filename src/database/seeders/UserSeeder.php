@@ -2,8 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\Development;
 use App\Models\Project;
 use App\Models\Task;
+use App\Models\Timer;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -17,7 +19,7 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory(3)
+        User::factory()
             ->has(
                 Project::factory(5)
                     ->has(Task::factory(3))

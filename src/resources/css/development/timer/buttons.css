@@ -1,0 +1,25 @@
+.startBtnColor {
+  fill: #a3e635;
+}
+
+.mutedStartBtnColor {
+  fill: #d9f99d;
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+.clearBtnColor {
+  stroke: #0ea5e9;
+}
+
+.mutedClearBtnColor {
+  stroke: #bae6fd;
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+.mutedTimeSetBtn {
+  stroke: #bae6fd;
+  pointer-events: none;
+  opacity: 0.3;
+}

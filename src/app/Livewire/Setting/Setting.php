@@ -8,9 +8,9 @@ use Livewire\Attributes\Rule;
 use Livewire\Attributes\Layout;
 
 use App\Livewire\Utils\Message\Message;
-use App\UseCases\Setting\SettingCommand;
-use App\UseCases\Setting\Fetch\FetchSettingUseCase;
-use App\UseCases\Setting\Update\UpdateSettingUseCase;
+use App\UseCases\Setting\Domain\SettingCommand;
+use App\UseCases\Setting\FetchSettingUseCase;
+use App\UseCases\Setting\UpdateSettingUseCase;
 
 
 final class Setting extends Component
@@ -64,7 +64,7 @@ final class Setting extends Component
             $command = new SettingCommand($this->defaultTime, $this->breakTime);
         
             $setting = $this->updateSetting->execute($command);
-
+            
             $this->set($setting);
                         
             $this->notify(Message::createSavedMessage());

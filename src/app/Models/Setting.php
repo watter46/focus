@@ -9,17 +9,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+use App\UseCases\Setting\SettingEntity;
 
+
+/**
+ * @property int $default_time
+ * @property int $break_time
+ */
 final class Setting extends Model
 {
     use HasFactory;
     use HasUlids;
 
-    const DEFAULT_TIME_min = 30; 
-    const BREAK_TIME_min   = 10;
-
     public $incrementing = false;
-    public $timestamps   = false;
 
     protected $keyType = 'string';
 
@@ -36,15 +38,12 @@ final class Setting extends Model
         });
     }
 
-    public function createSetting(): self
+    public function toEntity(): SettingEntity
     {
-        $this->default_time = self::DEFAULT_TIME_min;
-        $this->break_time   = self::BREAK_TIME_min;
-        
-        return $this;
+        return (new SettingEntity)->reconstruct($this);
     }
 
-    public function updateSetting(int $defaultTime, int $breakTime): self
+    public function fromEntity(int $defaultTime, int $breakTime): self
     {
         $this->user_id      = Auth::user()->id;
         $this->default_time = $defaultTime;
