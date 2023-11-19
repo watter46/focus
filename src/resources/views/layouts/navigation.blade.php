@@ -28,6 +28,12 @@
                         {{ __('Projects') }}
                     </x-nav-link>
                 </div>
+
+                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                    <x-nav-link :href="route('inDevelopments')" :active="request()->routeIs('inDevelopments')">
+                        {{ __('InDevelopments') }}
+                    </x-nav-link>
+                </div>
                 
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
                     <x-nav-link :href="route('settings')" :active="request()->routeIs('settings')">
@@ -99,6 +105,12 @@
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('projects')" :active="request()->routeIs('projects')">
                 {{ __('Projects') }}
+            </x-responsive-nav-link>
+        </div>
+        
+        <div class="pt-2 pb-3 space-y-1">
+            <x-responsive-nav-link :href="route('inDevelopments')" :active="request()->routeIs('inDevelopments')">
+                {{ __('InDevelopments') }}
             </x-responsive-nav-link>
         </div>
         

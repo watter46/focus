@@ -163,7 +163,6 @@ final class Project extends Model
                 ->hasMany(Task::class)
                 ->where('is_complete', false);
     }
-    
 
     /**
      * 開発できる状態か判定する
@@ -197,5 +196,21 @@ final class Project extends Model
                 $query->where('is_complete', false);
             }
         ]);
+    }
+
+    /**
+     * 開発途中のプロジェクトを取得する
+     *
+     * @param  Builder<Project> $query
+     * @return void
+     */
+    public function scopeActiveDevelopments(Builder $query)
+    {
+        $query
+            ->whereHas('developments', function ($query) {
+                $query
+                    ->where('is_start', true)
+                    ->where('is_complete', false);
+            });
     }
 }

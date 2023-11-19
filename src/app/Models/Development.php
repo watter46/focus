@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 
 use App\UseCases\Development\Domain\DevelopmentEntity;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 
 /**
@@ -136,5 +137,18 @@ final class Development extends Model
     public function project(): BelongsTo
     {
         return $this->BelongsTo(Project::class);
+    }
+    
+    /**
+     * 未完了の開発を取得する
+     *
+     * @param  Builder<Development> $query
+     * @return void
+     */
+    public function scopeInDevelopment(Builder $query)
+    {
+        $query
+            ->where('is_start', true)
+            ->where('is_complete', false);
     }
 }
