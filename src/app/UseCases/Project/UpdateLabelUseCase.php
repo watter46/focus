@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace App\UseCases\Project\UpdateLabel;
+namespace App\UseCases\Project;
 
 use Exception;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\Project;
-use App\UseCases\Project\ProjectCommand;
+use App\UseCases\Project\Domain\ProjectCommand;
 
 
 final readonly class UpdateLabelUseCase

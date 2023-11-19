@@ -11,9 +11,9 @@ use App\Livewire\Utils\Label\Enum\PurposeType;
 use App\Livewire\Utils\Label\LabelCommand;
 use App\Livewire\Utils\Label\LabelInterface;
 use App\Livewire\Utils\Message\Message;
-use App\UseCases\Project\FetchProject\FetchProjectUseCase;
-use App\UseCases\Project\UpdateLabel\UpdateLabelUseCase;
-use App\UseCases\Project\ProjectCommand;
+use App\UseCases\Project\FetchProjectUseCase;
+use App\UseCases\Project\UpdateLabelUseCase;
+use App\UseCases\Project\Domain\ProjectCommand;
 
 
 final class LabelSelector extends Component

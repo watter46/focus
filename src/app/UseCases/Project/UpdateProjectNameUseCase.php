@@ -1,14 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace App\UseCases\Project\UpdateProjectName;
+namespace App\UseCases\Project;
 
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Models\Project;
-use App\UseCases\Project\ProjectCommand;
-use App\UseCases\Project\ProjectEntity;
+use App\UseCases\Project\Domain\ProjectCommand;
+use App\UseCases\Project\Domain\ProjectEntity;
+
 
 final readonly class UpdateProjectNameUseCase
 {

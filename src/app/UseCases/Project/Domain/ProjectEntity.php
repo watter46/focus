@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace App\UseCases\Project;
+namespace App\UseCases\Project\Domain;
 
-use App\Constants\ProjectNameConstant;
 use Exception;
 
 use App\Models\Project;
 use App\Models\Task;
+use App\Constants\ProjectNameConstant;
 use App\Livewire\Utils\Label\Enum\LabelType;
-use App\UseCases\Project\ProjectCommand;
-use App\UseCases\Task\TaskEntity;
+use App\UseCases\Project\Domain\ProjectCommand;
+use App\UseCases\Task\Domain\TaskEntity;
 
 
 final class ProjectEntity

@@ -98,7 +98,7 @@ class TasksTest extends TestCase
             ->assertSet('name', 'name test')
             ->assertSet('content', 'content test')
             ->assertViewHas('project', function (Project $project) {
-                $this->assertSame(3, count($project->tasks));
+                $this->assertSame(3, count($project->incompleteTasks));
 
                 return true;
             });
@@ -120,7 +120,7 @@ class TasksTest extends TestCase
         // タスクが追加されるか
         $fieldReset
             ->assertViewHas('project', function (Project $project) {
-                $this->assertSame(4, count($project->tasks));
+                $this->assertSame(4, count($project->incompleteTasks));
 
                 return true;
             });

@@ -2,18 +2,18 @@
 
 namespace App\Livewire\Project\NewProject;
 
-use App\Livewire\Utils\Label\Enum\LabelType;
 use Exception;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Illuminate\Support\Collection;
 
+use App\Livewire\Utils\Label\Enum\LabelType;
 use App\Livewire\Utils\Message\Message;
-use App\UseCases\Project\CreateProject\CreateProjectUseCase;
+use App\UseCases\Project\Domain\ProjectCommand;
+use App\UseCases\Project\CreateProjectUseCase;
 use App\Livewire\Utils\Label\Enum\PurposeType;
 use App\Livewire\Utils\Label\LabelCommand;
 use App\Livewire\Utils\Label\LabelInterface;
-use App\UseCases\Project\ProjectCommand;
 
 
 final class NewProject extends Component

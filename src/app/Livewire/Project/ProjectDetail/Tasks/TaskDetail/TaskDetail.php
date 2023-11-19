@@ -10,10 +10,10 @@ use Livewire\Attributes\On;
 
 use App\Models\Task;
 use App\Livewire\Utils\Message\Message;
-use App\UseCases\Task\CompleteTask\CompleteTaskUseCase;
-use App\UseCases\Task\IncompleteTask\IncompleteTaskUseCase;
-use App\UseCases\Task\TaskCommand;
-use App\UseCases\Task\UpdateTask\UpdateTaskUseCase;
+use App\UseCases\Task\Domain\TaskCommand;
+use App\UseCases\Task\CompleteTaskUseCase;
+use App\UseCases\Task\IncompleteTaskUseCase;
+use App\UseCases\Task\UpdateTaskUseCase;
 
 
 final class TaskDetail extends Component
@@ -42,6 +42,13 @@ final class TaskDetail extends Component
         $this->completeTask   = $completeTask;
         $this->incompleteTask = $incompleteTask;
         $this->updateTask     = $updateTask;
+    }
+
+    public function mount()
+    {
+        $this->name       = $this->task->name;
+        $this->content    = $this->task->content;
+        $this->isComplete = $this->task->is_complete;
     }
 
     public function render()

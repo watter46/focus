@@ -14,7 +14,7 @@ use App\Models\Task;
 use App\Models\Development;
 use App\Livewire\Utils\Label\Enum\LabelType;
 use App\Livewire\Project\Projects\Progress\ProgressType;
-use App\UseCases\Project\ProjectEntity;
+use App\UseCases\Project\Domain\ProjectEntity;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**

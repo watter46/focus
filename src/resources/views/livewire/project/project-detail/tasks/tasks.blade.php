@@ -26,7 +26,7 @@
         </button>
     </div>
 
-    @foreach ($project->tasks as $task)
+    @foreach ($tasks as $task)
         <livewire:project.project-detail.tasks.task-detail.task-detail
             :$task
             :isComplete="$task->is_complete"

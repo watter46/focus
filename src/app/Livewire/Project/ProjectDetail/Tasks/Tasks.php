@@ -5,16 +5,17 @@ namespace App\Livewire\Project\ProjectDetail\Tasks;
 use Exception;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Rule;
-use Livewire\Component;
 use Livewire\Attributes\Locked;
+use Livewire\Component;
 use Illuminate\Support\Str;
 
 use App\Models\Project;
 use App\Livewire\Utils\Message\Message;
 use App\UseCases\Project\FetchProjectIncompleteTasksUseCase;
 use App\UseCases\Project\FetchProjectTasksUseCase;
-use App\UseCases\Project\ProjectCommand;
-use App\UseCases\Task\AddTask\AddTaskUseCase;
+use App\UseCases\Project\Domain\ProjectCommand;
+use App\UseCases\Task\AddTaskUseCase;
+use Illuminate\Database\Eloquent\Collection;
 
 
 final class Tasks extends Component
@@ -24,6 +25,10 @@ final class Tasks extends Component
 
     #[Locked]
     public Project $project;
+
+    #[Locked]
+    /** @var Collection<int, Task> $tasks */
+    public Collection $tasks;
 
     public $refresh;
 
@@ -58,7 +63,7 @@ final class Tasks extends Component
 
     #[On('fetch-project-incomplete-tasks')]    
     /**
-     * プロジェクト内の未完了のタスクIDリストを取得する
+     * プロジェクト内の未完了のタスクを取得する
      *
      * @return void
      */
@@ -69,7 +74,7 @@ final class Tasks extends Component
 
     #[On('fetch-project-tasks')]    
     /**
-     * プロジェクト内のタスクIDリストを全て取得する
+     * プロジェクト内のタスクを全て取得する
      *
      * @return void
      */
@@ -80,7 +85,7 @@ final class Tasks extends Component
     
     #[On('refetch')]    
     /**
-     * タスクIDリストを再度取得する
+     * タスクを再度取得する
      *
      * @return void
      */
@@ -93,6 +98,10 @@ final class Tasks extends Component
         $this->project = $this->isShowAll
                 ? $this->fetchProjectTasks->execute($command)
                 : $this->fetchProjectIncompleteTasks->execute($command);
+
+        $this->tasks = $this->isShowAll
+                ? $this->project->tasks
+                : $this->project->incompleteTasks;
     }
 
     #[On('add')]

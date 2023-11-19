@@ -6,11 +6,11 @@ use Exception;
 use Livewire\Component;
 use Livewire\Attributes\Locked;
 
-use App\UseCases\Project\FetchProject\FetchProjectUseCase;
-use App\UseCases\Project\CompleteProject\CompleteProjectUseCase;
-use App\UseCases\Project\IncompleteProject\IncompleteProjectUseCase;
-use App\UseCases\Project\UpdateProjectName\UpdateProjectNameUseCase;
-use App\UseCases\Project\ProjectCommand;
+use App\UseCases\Project\FetchProjectUseCase;
+use App\UseCases\Project\CompleteProjectUseCase;
+use App\UseCases\Project\IncompleteProjectUseCase;
+use App\UseCases\Project\UpdateProjectNameUseCase;
+use App\UseCases\Project\Domain\ProjectCommand;
 use App\Livewire\Project\NewProject\NewProject;
 use App\Livewire\Project\Projects\Projects;
 use App\Livewire\Utils\Message\Message;
