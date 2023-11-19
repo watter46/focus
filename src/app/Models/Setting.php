@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\UseCases\Setting\SettingEntity;
 use Auth;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
@@ -10,7 +9,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+use App\UseCases\Setting\SettingEntity;
 
+
+/**
+ * @property int $default_time
+ * @property int $break_time
+ */
 final class Setting extends Model
 {
     use HasFactory;
@@ -35,10 +40,7 @@ final class Setting extends Model
 
     public function toEntity(): SettingEntity
     {
-        return new SettingEntity(
-            $this->default_time,
-            $this->break_time
-        );
+        return (new SettingEntity)->reconstruct($this);
     }
 
     public function fromEntity(int $defaultTime, int $breakTime): self

@@ -1,12 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace App\UseCases\Setting\Fetch;
+namespace App\UseCases\Setting;
 
 use Exception;
-use Illuminate\Support\Collection;
 
 use App\Models\Setting;
-use App\UseCases\Setting\SettingEntity;
+use App\UseCases\Setting\Domain\SettingEntity;
 
 
 final readonly class FetchSettingUseCase
@@ -19,9 +18,9 @@ final readonly class FetchSettingUseCase
     public function execute(): Setting
     {
         try {
-            /** @var Collection $setting */
+            /** @var Setting $setting */
             $setting = Setting::latest()->first();
-
+            
             return $setting ?? $this->entity->create()->toModel();
 
         } catch (Exception $e) {

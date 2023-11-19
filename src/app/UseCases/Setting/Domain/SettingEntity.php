@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace App\UseCases\Setting;
+namespace App\UseCases\Setting\Domain;
 
 use App\Models\Setting;
 use App\Constants\BreakTimeConstants;

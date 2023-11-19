@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace App\UseCases\Setting\Update;
+namespace App\UseCases\Setting;
 
 use Exception;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\Setting;
-use App\UseCases\Setting\SettingCommand;
-use App\UseCases\Setting\SettingEntity;
+use App\UseCases\Setting\Domain\SettingCommand;
+use App\UseCases\Setting\Domain\SettingEntity;
 
 
 final readonly class UpdateSettingUseCase

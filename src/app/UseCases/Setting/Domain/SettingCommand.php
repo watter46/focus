@@ -1,8 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace App\UseCases\Setting;
-
-use App\Models\Setting;
+namespace App\UseCases\Setting\Domain;
 
 
 final readonly class SettingCommand
