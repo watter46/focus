@@ -38,7 +38,7 @@ readonly class ClassGenerator
         
         File::put($this->filePath(), $contents);
 
-        Artisan::call("make:com $this->arg");
+        // Artisan::call("make:com $this->arg");
     }
     
     /**

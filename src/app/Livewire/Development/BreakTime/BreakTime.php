@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Development\BreakTime;
 
-use App\UseCases\Setting\Fetch\FetchSettingUseCase;
+use App\UseCases\Setting\FetchSettingUseCase;
 use Livewire\Component;
 use Livewire\Attributes\Locked;
 

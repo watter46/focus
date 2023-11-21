@@ -7,7 +7,7 @@ use Carbon\Carbon;
 use App\Models\Development;
 use App\Models\Project;
 use App\Models\Setting;
-use App\UseCases\Setting\SettingEntity;
+use App\UseCases\Setting\Domain\SettingEntity;
 
 
 final class DevelopmentEntity

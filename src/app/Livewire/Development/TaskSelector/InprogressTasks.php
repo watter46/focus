@@ -14,8 +14,8 @@ use App\Models\Project;
 use App\Livewire\Utils\Message\Message;
 use App\UseCases\Development\Domain\DevelopmentCommand;
 use App\UseCases\Development\FetchProjectSelectedTasksUseCase;
-use App\UseCases\Project\ProjectCommand;
-use App\UseCases\Task\AddTask\AddTaskUseCase;
+use App\UseCases\Project\Domain\ProjectCommand;
+use App\UseCases\Task\AddTaskUseCase;
 
 
 final class InprogressTasks extends Component

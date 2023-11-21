@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Development;
 
+use App\Livewire\Development\Timer\Status;
 use App\Livewire\Development\Timer\Timer;
 use Exception;
 use Livewire\Component;
@@ -41,7 +42,8 @@ final class Development extends Component
         StopDevelopmentUseCase     $stopDevelopment,
         CompleteDevelopmentUseCase $completeDevelopment,
         FinishDevelopmentUseCase   $finishDevelopment,
-        RepeatDevelopmentUseCase   $repeatDevelopment)
+        RepeatDevelopmentUseCase   $repeatDevelopment,
+        Status $status)
     {
         $this->fetchDevelopment    = $fetchDevelopment;
         $this->startDevelopment    = $startDevelopment;
@@ -84,7 +86,6 @@ final class Development extends Component
             $this->development = $this->fetchDevelopment->execute($command);
             
         } catch (Exception $e) {
-            dd($e);
             $this->killTimer(Message::createErrorMessage($e));
         }
     }
