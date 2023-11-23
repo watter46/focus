@@ -30,7 +30,6 @@ final class ChangeTask extends Component
     public function boot(
         ChangeTaskUseCase $changeTask,
         FetchRemainingTasksUseCase $fetchRemainingTasks
-        
     ) {
         $this->changeTask = $changeTask;
         $this->fetchRemainingTasks = $fetchRemainingTasks;
@@ -50,7 +49,7 @@ final class ChangeTask extends Component
      */
     private function fetchRemainingTasks(): Collection
     {
-        $command = new DevelopmentCommand(developmentId: $this->developmentId);
+        $command = DevelopmentCommand::findByDevelopmentId($this->developmentId);
 
         return $this->fetchRemainingTasks->execute($command);
     }
@@ -83,8 +82,8 @@ final class ChangeTask extends Component
         try {
             if (!$this->additionalIdList) return;
 
-            $command = new DevelopmentCommand(
-                        developmentId: $this->developmentId,
+            $command = DevelopmentCommand::changeTask(
+                        developmentId:  $this->developmentId,
                         selectedIdList: $this->additionalIdList
                     );
             

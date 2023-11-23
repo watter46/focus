@@ -68,7 +68,7 @@ final class InprogressTasks extends Component
     public function setupView(): void
     {
         try {
-            $command = new DevelopmentCommand(developmentId: $this->developmentId);
+            $command = DevelopmentCommand::findByDevelopmentId($this->developmentId);
         
             $this->project   = $this->fetchProjectSelectedTasks->execute($command);
             $this->refreshId = (string) Str::ulid();

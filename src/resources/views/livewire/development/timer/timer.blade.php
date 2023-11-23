@@ -8,7 +8,7 @@
                 remainingTime: @entangle('remainingTime')
             }"
             x-effect="setupTime(defaultTime, remainingTime)"
-            @timer-reset.window="setupTime(defaultTime, remainingTime)">
+            @on-reset-timer.window="setupTime(defaultTime, remainingTime)">
             
             <div class="flex justify-center w-96">
                 <p
@@ -97,8 +97,8 @@
                     this.isShowStart = true;
                 }
             }"
-            @timer-reset.window="isShowStart = true"
-            @timer-kill.window="stop()">
+            @on-reset-timer.window="isShowStart = true"
+            @timer-killed.window="stop()">
             <div x-cloak>
                 {{-- StartButton --}}
                 <button id="start"

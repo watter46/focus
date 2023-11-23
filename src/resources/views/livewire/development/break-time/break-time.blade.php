@@ -15,7 +15,7 @@
             finishBreakTime();
         }
     }"
-    @start-break-time.window="start"
+    @on-start-break-time.window="start"
     @finish-break-time.window="finish"
     x-show="isShow"
     x-cloak

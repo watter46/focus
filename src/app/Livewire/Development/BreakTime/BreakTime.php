@@ -38,7 +38,7 @@ final class BreakTime extends Component
      */
     public function repeat(): void
     {
-        $this->dispatch('repeat', $this->projectId);
+        $this->dispatch('break-time-finished', $this->projectId);
     }
     
     /**

@@ -73,9 +73,9 @@ final class Timer extends Component
         $this->isStart = true;
         
         $this->dispatch(
-            'start-development',
-            $this->defaultTime,
-            $this->selectedIdList
+            'timer-started',
+            defaultTime:    $this->defaultTime,
+            selectedIdList: $this->selectedIdList
         );
     }
     
@@ -89,7 +89,7 @@ final class Timer extends Component
     {
         $this->status->toPaused();
 
-        $this->dispatch('stop-development', $remainingTime_sec);
+        $this->dispatch('timer-stopped', $remainingTime_sec);
     }
     
     /**
@@ -99,7 +99,7 @@ final class Timer extends Component
      */
     public function clear(): void
     {        
-        $this->dispatch('finish-development');
+        $this->dispatch('timer-cleared');
     }
     
     /**
@@ -109,15 +109,16 @@ final class Timer extends Component
      * @param  array $selectedIdList
      * @return void
      */
-    #[On('repeat-timer')]
+    #[On('on-repeat-timer')]
     public function repeat(int $defaultTime, array $selectedIdList): void
     {        
         $this->setTime($defaultTime);
+
         $this->setSelectedIdList($selectedIdList);
 
         $this->isStart = true;
 
-        $this->dispatch('timer-reset');
+        $this->dispatch('on-reset-timer');
     }
 
     /**
@@ -125,10 +126,10 @@ final class Timer extends Component
      *
      * @return void
      */
-    #[On('kill-timer')]
+    #[On('on-kill-timer')]
     public function kill(): void
     {
-        $this->dispatch('timer-kill');
+        $this->dispatch('timer-killed');
 
         $this->initialize();
     }
@@ -147,7 +148,9 @@ final class Timer extends Component
 
         $this->isStart = false;
 
-        $this->dispatch('timer-reset');
+        $this->selectedIdList = [];
+
+        $this->dispatch('on-reset-timer');
     }
 
     /**
@@ -183,7 +186,7 @@ final class Timer extends Component
 
     private function fetchDevelopment(): void
     {
-        $command = new DevelopmentCommand(projectId: $this->projectId);
+        $command = DevelopmentCommand::findByProjectId($this->projectId);
         
         $development = $this->fetchDevelopment->execute($command);
 
