@@ -10,7 +10,7 @@ use App\Models\Development;
 use App\UseCases\Development\Domain\DevelopmentCommand;
 
 
-final readonly class FinishDevelopmentUseCase
+final readonly class ClearDevelopmentUseCase
 {
     public function __construct()
     {
@@ -24,7 +24,7 @@ final readonly class FinishDevelopmentUseCase
             $development = Development::query()
                                 ->findOrFail($command->developmentId())
                                 ->toEntity()
-                                ->finish()
+                                ->clear()
                                 ->toModel();
 
             DB::transaction(function () use ($development) {

@@ -24,12 +24,12 @@ final readonly class RepeatDevelopmentUseCase
         try {
             /** @var Project $project */
             $project = Project::with('latestDevelopment')->findOrFail($command->projectId());
-            
+
             $development = $this
                             ->entity
                             ->repeat($project->latestDevelopment)
                             ->toModel();
-
+                            
             DB::transaction(function () use ($development) {
                 $development->save();
             });

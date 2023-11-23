@@ -24,7 +24,7 @@ final readonly class CompleteDevelopmentUseCase
             $development = Development::query()
                                 ->findOrFail($command->developmentId())
                                 ->toEntity()
-                                ->finish()
+                                ->complete()
                                 ->toModel();
 
             DB::transaction(function () use ($development) {
