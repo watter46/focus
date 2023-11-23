@@ -6,7 +6,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 use App\Models\Task;
-use App\UseCases\Task\FetchIncompleteTasks\FetchIncompleteTasks;
+use App\UseCases\Task\FetchIncompleteTasks;
 
 
 final readonly class TaskSelectorPresenter

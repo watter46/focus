@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Development\BreakTime;
 
-use App\UseCases\Setting\Fetch\FetchSettingUseCase;
+use App\UseCases\Setting\FetchSettingUseCase;
 use Livewire\Component;
 use Livewire\Attributes\Locked;
 
@@ -38,7 +38,7 @@ final class BreakTime extends Component
      */
     public function repeat(): void
     {
-        $this->dispatch('repeat', $this->projectId);
+        $this->dispatch('break-time-finished', $this->projectId);
     }
     
     /**

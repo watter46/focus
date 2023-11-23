@@ -1,7 +1,6 @@
-<div x-data
-    x-init="taskSelectorSortable()">
+<div x-data>
     @if (!$isStart)
-        <div class="p-2 mx-3 border border-gray-600 rounded-lg">
+        <div class="p-2 mx-3 border border-gray-600 rounded-lg" x-init="taskSelectorSortable()">
             <div class="grid h-full grid-cols-2 gap-2 p-1" style="min-height: 60vh;">
                 {{-- InCompleteTasks --}}
                 <div class="border-2 border-gray-600 rounded-lg">

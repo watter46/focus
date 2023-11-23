@@ -2,7 +2,6 @@
 
 namespace App\Livewire\Development;
 
-use App\Livewire\Development\Timer\Timer;
 use Exception;
 use Livewire\Component;
 use Livewire\Attributes\On;
@@ -15,7 +14,7 @@ use App\UseCases\Development\Domain\DevelopmentCommand;
 use App\UseCases\Development\CompleteDevelopmentUseCase;
 use App\UseCases\Development\FetchDevelopmentUseCase;
 use App\UseCases\Development\StartDevelopmentUseCase;
-use App\UseCases\Development\FinishDevelopmentUseCase;
+use App\UseCases\Development\ClearDevelopmentUseCase;
 use App\UseCases\Development\RepeatDevelopmentUseCase;
 use App\UseCases\Development\StopDevelopmentUseCase;
 
@@ -32,7 +31,7 @@ final class Development extends Component
     private readonly StartDevelopmentUseCase    $startDevelopment;
     private readonly StopDevelopmentUseCase     $stopDevelopment;
     private readonly CompleteDevelopmentUseCase $completeDevelopment;
-    private readonly FinishDevelopmentUseCase   $finishDevelopment;
+    private readonly ClearDevelopmentUseCase    $clearDevelopment;
     private readonly RepeatDevelopmentUseCase   $repeatDevelopment;
 
     public function boot(
@@ -40,14 +39,14 @@ final class Development extends Component
         StartDevelopmentUseCase    $startDevelopment,
         StopDevelopmentUseCase     $stopDevelopment,
         CompleteDevelopmentUseCase $completeDevelopment,
-        FinishDevelopmentUseCase   $finishDevelopment,
+        ClearDevelopmentUseCase    $clearDevelopment,
         RepeatDevelopmentUseCase   $repeatDevelopment)
     {
         $this->fetchDevelopment    = $fetchDevelopment;
         $this->startDevelopment    = $startDevelopment;
         $this->stopDevelopment     = $stopDevelopment;
         $this->completeDevelopment = $completeDevelopment;
-        $this->finishDevelopment   = $finishDevelopment;
+        $this->clearDevelopment    = $clearDevelopment;
         $this->repeatDevelopment   = $repeatDevelopment;
     }
 
@@ -75,16 +74,14 @@ final class Development extends Component
      * @param string $projectId
      * @return void
      */
-    #[On('setupView')]
     public function setupView(string $projectId): void
     {
         try {
-            $command = new DevelopmentCommand(projectId: $projectId);
+            $command = DevelopmentCommand::findByProjectId($projectId);
             
             $this->development = $this->fetchDevelopment->execute($command);
             
         } catch (Exception $e) {
-            dd($e);
             $this->killTimer(Message::createErrorMessage($e));
         }
     }
@@ -96,20 +93,21 @@ final class Development extends Component
      * @param  array $selectedIdList
      * @return void
      */
-    #[On('start-development')]
+    #[On('timer-started')]
     public function start(int $defaultTime, array $selectedIdList): void
     {
         try {
             if ($this->development->canRestart()) return;
     
-            $command = new DevelopmentCommand(
-                projectId: $this->projectId,
-                defaultTime: $defaultTime,
-                remainingTime: $defaultTime,
-                selectedIdList: $selectedIdList
-            );
+            $command = DevelopmentCommand::start(
+                    projectId: $this->projectId,
+                    defaultTime: $defaultTime,
+                    selectedIdList: $selectedIdList
+                );
     
             $this->development = $this->startDevelopment->execute($command);
+
+            $this->dispatch('development-started', $this->development->id);
 
         } catch (Exception $e) {
             $this->killTimer(Message::createErrorMessage($e));
@@ -122,7 +120,7 @@ final class Development extends Component
      * @param  int $remainingTime
      * @return void
      */
-    #[On('stop-development')]
+    #[On('timer-stopped')]
     public function stop(int $remainingTime): void
     {
         try {
@@ -134,10 +132,10 @@ final class Development extends Component
                 return;
             }
 
-            $command = new DevelopmentCommand(
-                            developmentId: $this->development->id,
-                            remainingTime: $remainingTime
-                        );
+            $command = DevelopmentCommand::stop(
+                    developmentId: $this->development->id,
+                    remainingTime: $remainingTime
+                );
 
             $this->development = $this->stopDevelopment->execute($command);
 
@@ -151,20 +149,15 @@ final class Development extends Component
      *
      * @return void
      */
-    #[On('complete-development')]
+    #[On('timer-completed')]
     public function complete(): void
     {
-        try {
-            if (!$this->development->id) {
-                $this->dispatch('initialize');
-                return;
-            };
+        try {    
+            $command = DevelopmentCommand::findByDevelopmentId($this->development->id);
     
-            $command = new DevelopmentCommand(developmentId: $this->development->id);
-    
-            $this->completeDevelopment->execute($command);
-    
-            $this->dispatch('start-break-time');
+            $this->development = $this->completeDevelopment->execute($command);
+
+            $this->dispatch('on-start-break-time');
 
         } catch (Exception $e) {
             $this->killTimer(Message::createErrorMessage($e));
@@ -176,19 +169,17 @@ final class Development extends Component
      *
      * @return void
      */
-    #[On('finish-development')]
+    #[On('timer-cleared')]
     public function clear(): void
     {
         try {
-            $this->setupView($this->projectId);
+            $command = DevelopmentCommand::findByDevelopmentId($this->development->id);
 
-            $command = new DevelopmentCommand(developmentId: $this->development->id);
+            $this->development = $this->clearDevelopment->execute($command);
 
-            $this->finishDevelopment->execute($command);
-
-            $this->setupView($this->projectId);
-
-            $this->dispatch('initialize')->to(Timer::class);
+            $this->dispatch('development-finished');
+            
+            $this->dispatch('initialize');
 
         } catch (Exception $e) {
             $this->killTimer(Message::createErrorMessage($e));
@@ -201,19 +192,19 @@ final class Development extends Component
      * @param  string $projectId
      * @return void
      */
-    #[On('repeat')]
+    #[On('break-time-finished')]
     public function repeat(string $projectId): void
     {        
         try {
-            $command = new DevelopmentCommand(projectId: $projectId);
+            $command = DevelopmentCommand::findByProjectId($projectId);
 
             $this->development = $this->repeatDevelopment->execute($command);
             
             $this->dispatch(
-                'repeat-timer',
-                $this->development->default_time,
-                $this->development->selected_id_list
-            )->to(Timer::class);
+                'on-repeat-timer',
+                defaultTime:    $this->development->default_time,
+                selectedIdList: $this->development->selected_id_list
+            );
 
         } catch (Exception $e) {
             $this->killTimer(Message::createErrorMessage($e));
@@ -228,7 +219,7 @@ final class Development extends Component
      */
     private function killTimer(Message $message): void
     {
-        $this->dispatch('kill-timer');
+        $this->dispatch('on-kill-timer');
 
         $this->notify($message);
     }

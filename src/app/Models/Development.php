@@ -35,7 +35,6 @@ final class Development extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'id',
         'project_id',
         'is_start',
         'is_complete',
@@ -100,6 +99,8 @@ final class Development extends Model
     }
 
     public function fromEntity(
+        ?string $developmentId,
+        string  $projectId,
         bool    $isStart,
         bool    $isComplete,
         int     $defaultTime,
@@ -108,6 +109,8 @@ final class Development extends Model
         ?Carbon $finished,
         array   $selectedIdList): self
     {
+        $this->id             = $developmentId;
+        $this->project_id     = $projectId;
         $this->is_start       = $isStart;
         $this->is_complete    = $isComplete;
         $this->default_time   = $defaultTime;

@@ -2,16 +2,17 @@
 
 namespace App\Livewire\Development\TaskSelector;
 
-use App\Livewire\Utils\Message\Message;
+use Exception;
 use Livewire\Component;
 use Livewire\Attributes\Locked;
 use Illuminate\Database\Eloquent\Collection;
 
 use App\Models\Task;
-use App\UseCases\Development\ChangeTaskUseCase;
+use App\Livewire\Utils\Message\Message;
 use App\UseCases\Development\Domain\DevelopmentCommand;
+use App\UseCases\Development\ChangeTaskUseCase;
 use App\UseCases\Development\FetchRemainingTasksUseCase;
-use Exception;
+
 
 final class ChangeTask extends Component
 {
@@ -29,7 +30,6 @@ final class ChangeTask extends Component
     public function boot(
         ChangeTaskUseCase $changeTask,
         FetchRemainingTasksUseCase $fetchRemainingTasks
-        
     ) {
         $this->changeTask = $changeTask;
         $this->fetchRemainingTasks = $fetchRemainingTasks;
@@ -49,7 +49,7 @@ final class ChangeTask extends Component
      */
     private function fetchRemainingTasks(): Collection
     {
-        $command = new DevelopmentCommand(developmentId: $this->developmentId);
+        $command = DevelopmentCommand::findByDevelopmentId($this->developmentId);
 
         return $this->fetchRemainingTasks->execute($command);
     }
@@ -82,8 +82,8 @@ final class ChangeTask extends Component
         try {
             if (!$this->additionalIdList) return;
 
-            $command = new DevelopmentCommand(
-                        developmentId: $this->developmentId,
+            $command = DevelopmentCommand::changeTask(
+                        developmentId:  $this->developmentId,
                         selectedIdList: $this->additionalIdList
                     );
             

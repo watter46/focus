@@ -3,15 +3,18 @@
 namespace App\UseCases\Development\Domain;
 
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 use App\Models\Development;
 use App\Models\Project;
 use App\Models\Setting;
-use App\UseCases\Setting\SettingEntity;
+use App\UseCases\Setting\Domain\SettingEntity;
 
 
 final class DevelopmentEntity
 {
+    private ?string $developmentId;
+    private string  $projectId;
     private bool    $isStart;
     private bool    $isComplete;
     private int     $defaultTime;
@@ -20,7 +23,6 @@ final class DevelopmentEntity
     private ?Carbon $finishedAt;
     private array   $selectedIdList;
     
-    private Project     $project;
     private Development $development;
 
     public function __construct()
@@ -35,14 +37,14 @@ final class DevelopmentEntity
      * @return self
      */
     public function create(Project $project): self
-    {
-        $this->project = $project;
-        
+    {        
         /** @var Setting $setting */
-        $setting = Setting::get()->first() ?? (new SettingEntity)->create()->toModel();;
+        $setting = Setting::get()->first() ?? (new SettingEntity)->create()->toModel();
         
         $defaultTime = $setting->default_time;
         
+        $this->developmentId  = null;
+        $this->projectId      = $project->id;
         $this->isStart        = false;
         $this->isComplete     = false;
         $this->defaultTime    = $defaultTime;
@@ -66,6 +68,8 @@ final class DevelopmentEntity
     {
         $this->development = $development;
 
+        $this->developmentId  = $development->id;
+        $this->projectId      = $development->project_id;
         $this->isStart        = $development->is_start;
         $this->isComplete     = $development->is_complete;
         $this->defaultTime    = $development->default_time;
@@ -112,11 +116,27 @@ final class DevelopmentEntity
     }
     
     /**
-     * 開発を終了する
+     * 開発を完了する
      *
      * @return self
      */
-    public function finish(): self
+    public function complete(): self
+    {
+        $this->isComplete    = true;
+        $this->remainingTime = 0;
+        $this->finishedAt    = now();
+
+        $this->validate();
+        
+        return $this;
+    }
+    
+    /**
+     * 開発を途中でやめる
+     *
+     * @return self
+     */
+    public function clear(): self
     {
         $this->isComplete = true;
         $this->finishedAt = now();
@@ -132,9 +152,9 @@ final class DevelopmentEntity
      * @return self
      */
     public function repeat(Development $development): self
-    {
-        $this->project = $development->project;
-        
+    {        
+        $this->developmentId  = null;
+        $this->projectId      = $development->project_id;
         $this->isStart        = true;
         $this->isComplete     = false;
         $this->defaultTime    = $development->default_time;
@@ -151,7 +171,7 @@ final class DevelopmentEntity
     /**
      * タスクを変更する
      *
-     * @return void
+     * @return self
      */
     public function changeTask(DevelopmentCommand $command): self
     {
@@ -176,7 +196,7 @@ final class DevelopmentEntity
     {
         return $this->selectedIdList;
     }
-    
+
     /**
      * モデルに変換する
      *
@@ -184,28 +204,16 @@ final class DevelopmentEntity
      */
     public function toModel(): Development
     {
-        if (!$this->development->project) {
-            return $this->development->fromEntity(
-                $this->isStart,
-                $this->isComplete,
-                $this->defaultTime,
-                $this->remainingTime,
-                $this->startedAt,
-                $this->finishedAt,
-                $this->selectedIdList
-            )
-            ->project()
-            ->associate($this->project);
-        }
-
         return $this->development->fromEntity(
-            $this->isStart,
-            $this->isComplete,
-            $this->defaultTime,
-            $this->remainingTime,
-            $this->startedAt,
-            $this->finishedAt,
-            $this->selectedIdList
+            developmentId:  $this->developmentId,
+            projectId:      $this->projectId,
+            isStart:        $this->isStart,
+            isComplete:     $this->isComplete,
+            defaultTime:    $this->defaultTime,
+            remainingTime:  $this->remainingTime,
+            startedAt:      $this->startedAt,
+            finished:       $this->finishedAt,
+            selectedIdList: $this->selectedIdList,
         );
     }
 }

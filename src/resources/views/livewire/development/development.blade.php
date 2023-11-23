@@ -10,8 +10,7 @@
     <livewire:development.task-selector.task-selector
         :$projectId
         :developmentId="$development->id"
-        :isStart="$development->is_start"
-        :wire:key="$development->is_start" />
+        :isStart="$development->is_start" />
 
     {{-- BreakTime --}}
     <livewire:development.break-time.break-time

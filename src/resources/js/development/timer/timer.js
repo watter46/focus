@@ -29,7 +29,7 @@ export class Timer {
     #complete = () => {
         clearInterval(this.#intervalId);
 
-        Livewire.dispatch('complete-development');
+        Livewire.dispatch('timer-completed');
     }
 
     #tick = () => {

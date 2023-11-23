@@ -7,14 +7,50 @@ use Exception;
 
 final readonly class DevelopmentCommand
 {
-    public function __construct(
-        private ?string $projectId = null,
+    private function __construct(
         private ?string $developmentId = null,
+        private ?string $projectId = null,
         private ?int    $defaultTime = null,
         private ?int    $remainingTime = null,
         private ?array  $selectedIdList = null
     ) {
         //
+    }
+
+    public static function findByProjectId(string $projectId): self
+    {
+        return new self(projectId: $projectId);
+    }
+
+    public static function findByDevelopmentId(string $developmentId): self
+    {
+        return new self(developmentId: $developmentId);
+    }
+
+    public static function start(string $projectId, int $defaultTime, array $selectedIdList): self
+    {
+        return new self(
+            projectId: $projectId,
+            defaultTime: $defaultTime,
+            remainingTime: $defaultTime,
+            selectedIdList: $selectedIdList
+        );
+    }
+
+    public static function stop(string $developmentId, int $remainingTime): self
+    {
+        return new self(
+            developmentId: $developmentId,
+            remainingTime: $remainingTime
+        );
+    }
+
+    public static function changeTask(string $developmentId, array $selectedIdList): self
+    {
+        return new self(
+            developmentId:  $developmentId,
+            selectedIdList: $selectedIdList
+        );
     }
 
     public function projectId(): string
