@@ -2,117 +2,70 @@
 
 namespace App\UseCases\Development\Domain;
 
-use Carbon\Carbon;
-use Illuminate\Support\Str;
-
 use App\Models\Development;
-use App\Models\Project;
-use App\Models\Setting;
-use App\UseCases\Setting\Domain\SettingEntity;
+use App\UseCases\Util\UlidValidator;
+use App\UseCases\Development\DevelopmentCommand;
 
 
-final class DevelopmentEntity
-{
+final readonly class DevelopmentEntity
+{        
     private ?string $developmentId;
-    private string  $projectId;
-    private bool    $isStart;
-    private bool    $isComplete;
-    private int     $defaultTime;
-    private int     $remainingTime;
-    private ?Carbon $startedAt;
-    private ?Carbon $finishedAt;
-    private array   $selectedIdList;
-    
-    private Development $development;
+    private ?string $projectId;
+    private ?bool   $isStart;
+    private ?bool   $isComplete;
+    private ?array  $selectedIdList;
+    private Timer   $timer;
 
-    public function __construct()
-    {
-        $this->development = new Development;
-    }
-        
     /**
-     * 初期値を生成する
+     * __construct
      *
-     * @param  Project $project
-     * @return self
+     * @return void
      */
-    public function create(Project $project): self
-    {        
-        /** @var Setting $setting */
-        $setting = Setting::get()->first() ?? (new SettingEntity)->create()->toModel();
-        
-        $defaultTime = $setting->default_time;
-        
-        $this->developmentId  = null;
-        $this->projectId      = $project->id;
-        $this->isStart        = false;
-        $this->isComplete     = false;
-        $this->defaultTime    = $defaultTime;
-        $this->remainingTime  = $defaultTime;
-        $this->startedAt      = null;
-        $this->finishedAt     = null;
-        $this->selectedIdList = [];
-
-        $this->validate();
-
-        return $this;
-    }
-    
-    /**
-     * DBからエンティティを再構築する
-     *
-     * @param  Development $development
-     * @return self
-     */
-    public function reconstruct(Development $development): self
-    {
-        $this->development = $development;
-
-        $this->developmentId  = $development->id;
-        $this->projectId      = $development->project_id;
-        $this->isStart        = $development->is_start;
-        $this->isComplete     = $development->is_complete;
-        $this->defaultTime    = $development->default_time;
-        $this->remainingTime  = $development->remaining_time;
-        $this->startedAt      = $development->started_at;
-        $this->finishedAt     = $development->finished_at;
-        $this->selectedIdList = $development->selected_id_list;
-
-        return $this;
+    public function __construct(
+        ?string $developmentId  = null,
+        ?string $projectId      = null,
+        ?bool   $isStart        = null,
+        ?bool   $isComplete     = null,
+        ?array  $selectedIdList = null,
+        ?Timer  $timer          = null
+    ) {
+        $this->developmentId  = $developmentId;
+        $this->projectId      = $projectId;
+        $this->isStart        = $isStart;
+        $this->isComplete     = $isComplete;
+        $this->selectedIdList = $selectedIdList;
+        $this->timer          = $timer ?? new Timer;
     }
     
     /**
      * 開発を開始する
      *
-     * @param  DevelopmentCommand $command
+     * @param DevelopmentCommand $command
+     * 
      * @return self
      */
     public function start(DevelopmentCommand $command): self
     {
-        $this->isStart        = true;
-        $this->defaultTime    = $command->defaultTime();
-        $this->remainingTime  = $command->remainingTime();
-        $this->startedAt      = now();
-        $this->selectedIdList = $command->selectedIdList();
-
-        $this->validate();
-        
-        return $this;
+        return $this->changeAttribute(
+            projectId: $command->projectId(),
+            isStart: true,
+            selectedIdList: $command->selectedIdList(),
+            timer: $this->timer->start(defaultTime: $command->defaultTime())
+        );
     }
     
     /**
      * 開発をとめる
      *
-     * @param  DevelopmentCommand $command
+     * @param DevelopmentCommand $command
+     * 
      * @return self
      */
     public function stop(DevelopmentCommand $command): self
     {
-        $this->remainingTime = $command->remainingTime();
-
-        $this->validate();
-        
-        return $this;
+        return $this->changeAttribute(
+            timer: $this->timer->stop($command->remainingTime())
+        );
     }
     
     /**
@@ -121,14 +74,11 @@ final class DevelopmentEntity
      * @return self
      */
     public function complete(): self
-    {
-        $this->isComplete    = true;
-        $this->remainingTime = 0;
-        $this->finishedAt    = now();
-
-        $this->validate();
-        
-        return $this;
+    {        
+        return $this->changeAttribute(
+            isComplete: true,
+            timer: $this->timer->complete()
+        );
     }
     
     /**
@@ -137,83 +87,117 @@ final class DevelopmentEntity
      * @return self
      */
     public function clear(): self
-    {
-        $this->isComplete = true;
-        $this->finishedAt = now();
-
-        $this->validate();
-        
-        return $this;
+    {        
+        return $this->changeAttribute(
+            isComplete: true,
+            timer: $this->timer->clear()
+        );
     }
     
     /**
      * 同じプロジェクトを再開発する
-     *
+     * 
+     * @param Development $development
+     * 
      * @return self
      */
     public function repeat(Development $development): self
     {        
-        $this->developmentId  = null;
-        $this->projectId      = $development->project_id;
-        $this->isStart        = true;
-        $this->isComplete     = false;
-        $this->defaultTime    = $development->default_time;
-        $this->remainingTime  = $development->default_time;
-        $this->startedAt      = now();
-        $this->finishedAt     = null;
-        $this->selectedIdList = $development->selected_id_list;
-
-        $this->validate();
-
-        return $this;
+        return $this->changeAttribute(
+            projectId: $development->project_id,
+            isStart: true,
+            isComplete: false,
+            selectedIdList: $development->selected_id_list,
+            timer: $this->timer->start(defaultTime: $development->default_time)
+        );
     }
     
     /**
      * タスクを変更する
-     *
+     * 
+     * @param DevelopmentCommand $command
+     * 
      * @return self
      */
     public function changeTask(DevelopmentCommand $command): self
     {
-        $this->selectedIdList = collect($this->selectedIdList)
-                                ->merge($command->selectedIdList())
-                                ->toArray();
+        $taskIdList = collect($this->selectedIdList)
+                ->merge($command->selectedIdList())
+                ->toArray();
+        
+        // validateする(count)
 
-        return $this;
+        return $this->changeAttribute(selectedIdList: $taskIdList);
     }
 
-    public function validate(): void
+    private function validate(): void
     {
-        // validateを書く
+        if ($this->developmentId) {
+            UlidValidator::isValid($this->developmentId);
+        }
+
+        UlidValidator::isValid($this->projectId);
     }
-    
+        
     /**
-     * 開発中のタスクIDを取得する
-     *
-     * @return array
+     * プロパティを変更する
+     * 
+     * @param ?string $developmentId,
+     * @param ?string $projectId,
+     * @param ?bool   $isStart,
+     * @param ?bool   $isComplete,
+     * @param ?array  $selectedIdList,
+     * @param ?Timer  $timer
+     * 
+     * @return self
      */
+    private function changeAttribute(
+        ?string $developmentId = null,
+        ?string $projectId = null,
+        ?bool   $isStart = null,
+        ?bool   $isComplete = null,
+        ?array  $selectedIdList = null,
+        ?Timer  $timer = null): self
+    {
+        $this->validate();
+        
+        return new self(
+            developmentId:  $developmentId  ?? $this->developmentId,
+            projectId:      $projectId      ?? $this->projectId,
+            isStart:        $isStart        ?? $this->isStart,
+            isComplete:     $isComplete     ?? $this->isComplete,
+            selectedIdList: $selectedIdList ?? $this->selectedIdList,
+            timer:          $timer          ?? $this->timer
+        );
+    }
+
+    public function developmentId(): ?string
+    {
+        return $this->developmentId;
+    }
+
+    public function projectId(): string
+    {
+        return $this->projectId;
+    }
+
+    public function isStart(): bool
+    {
+        return $this->isStart;
+    }
+
+    public function isComplete(): bool
+    {
+        return $this->isComplete;
+    }
+
     public function selectedIdList(): array
     {
         return $this->selectedIdList;
     }
 
-    /**
-     * モデルに変換する
-     *
-     * @return Development
-     */
-    public function toModel(): Development
+    public function timer(): Timer
     {
-        return $this->development->fromEntity(
-            developmentId:  $this->developmentId,
-            projectId:      $this->projectId,
-            isStart:        $this->isStart,
-            isComplete:     $this->isComplete,
-            defaultTime:    $this->defaultTime,
-            remainingTime:  $this->remainingTime,
-            startedAt:      $this->startedAt,
-            finished:       $this->finishedAt,
-            selectedIdList: $this->selectedIdList,
-        );
+        return $this->timer;
     }
 }

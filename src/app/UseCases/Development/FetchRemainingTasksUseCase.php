@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Models\Development;
 use App\Models\Task;
-use App\UseCases\Development\Domain\DevelopmentCommand;
+use App\UseCases\Development\DevelopmentCommand;
 
 
 final readonly class FetchRemainingTasksUseCase

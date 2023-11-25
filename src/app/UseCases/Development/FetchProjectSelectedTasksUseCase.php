@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Models\Development;
 use App\Models\Project;
-use App\UseCases\Development\Domain\DevelopmentCommand;
+use App\UseCases\Development\DevelopmentCommand;
 
 
 final readonly class FetchProjectSelectedTasksUseCase
@@ -22,14 +22,15 @@ final readonly class FetchProjectSelectedTasksUseCase
         try {
             /** @var Development $development */
             $development = Development::findOrFail($command->developmentId());
+                        
+            $selectedIdList = $development->selected_id_list;
             
-            $selectedIdList = $development->toEntity()->selectedIdList();
-
-            return Project::with(['tasks' => fn($query) => $query
-                                ->findOrFail($selectedIdList)
-                            ])
-                            ->tasksCount()
-                            ->findOrFail($development->project_id);
+            return Project::query()
+                        ->with(['tasks' => fn($query) => $query
+                            ->findOrFail($selectedIdList)
+                        ])
+                        ->tasksCount()
+                        ->findOrFail($development->project_id);
             
         } catch (ModelNotFoundException $e) {
             throw new ModelNotFoundException('モデルが見つかりませんでした。');

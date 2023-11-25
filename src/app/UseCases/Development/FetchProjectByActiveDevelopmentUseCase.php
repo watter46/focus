@@ -25,9 +25,9 @@ final readonly class FetchProjectByActiveDevelopmentUseCase
     {
         try {
             return Project::query()
-                        ->withCount('tasks')
-                        ->activeDevelopments()
-                        ->paginate(5);
+                    ->withCount('tasks')
+                    ->activeDevelopments()
+                    ->paginate(5);
 
         } catch (ModelNotFoundException $e) {
             throw new ModelNotFoundException('プロジェクトが見つかりませんでした。');

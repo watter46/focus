@@ -7,14 +7,14 @@ use Exception;
 
 use App\Models\Development;
 use App\Models\Project;
-
-use App\UseCases\Development\Domain\DevelopmentCommand;
-use App\UseCases\Development\Domain\DevelopmentEntity;
+use App\UseCases\Development\DevelopmentCommand;
+use App\UseCases\Development\Infrastructure\DevelopmentFactory;
+use App\UseCases\Development\Infrastructure\DevelopmentModelBuilder;
 
 
 final readonly class StartDevelopmentUseCase
 {
-    public function __construct(private DevelopmentEntity $entity)
+    public function __construct(private DevelopmentFactory $factory, private DevelopmentModelBuilder $builder)
     {
         //
     }
@@ -22,13 +22,15 @@ final readonly class StartDevelopmentUseCase
     public function execute(DevelopmentCommand $command): Development
     {
         try {
+            /** @var Project $project */
             $project = Project::findOrFail($command->projectId());
             
-            $development = $this
-                        ->entity
-                        ->create($project)
-                        ->start($command)
-                        ->toModel();
+            $started = $this
+                ->factory
+                ->create($project)
+                ->start($command);
+
+            $development = $this->builder->toModel($started);
 
             DB::transaction(function () use ($development) {
                 $development->save();
