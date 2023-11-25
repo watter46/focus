@@ -8,13 +8,14 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Models\Development;
 use App\Models\Project;
-use App\UseCases\Development\Domain\DevelopmentCommand;
-use App\UseCases\Development\Domain\DevelopmentEntity;
+use App\UseCases\Development\DevelopmentCommand;
+use App\UseCases\Development\Infrastructure\DevelopmentFactory;
+use App\UseCases\Development\Infrastructure\DevelopmentModelBuilder;
 
 
 final readonly class RepeatDevelopmentUseCase
 {
-    public function __construct(private DevelopmentEntity $entity)
+    public function __construct(private DevelopmentFactory $factory, private DevelopmentModelBuilder $builder)
     {
         //
     }
@@ -25,10 +26,12 @@ final readonly class RepeatDevelopmentUseCase
             /** @var Project $project */
             $project = Project::with('latestDevelopment')->findOrFail($command->projectId());
 
-            $development = $this
-                            ->entity
-                            ->repeat($project->latestDevelopment)
-                            ->toModel();
+            $repeated = $this
+                ->factory
+                ->create($project)
+                ->repeat($project->latestDevelopment);
+            
+            $development = $this->builder->toModel($repeated);
                             
             DB::transaction(function () use ($development) {
                 $development->save();

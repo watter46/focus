@@ -10,7 +10,7 @@ use Livewire\Attributes\Locked;
 
 use App\Models\Development as EqDevelopment;
 use App\Livewire\Utils\Message\Message;
-use App\UseCases\Development\Domain\DevelopmentCommand;
+use App\UseCases\Development\DevelopmentCommand;
 use App\UseCases\Development\CompleteDevelopmentUseCase;
 use App\UseCases\Development\FetchDevelopmentUseCase;
 use App\UseCases\Development\StartDevelopmentUseCase;
@@ -106,7 +106,7 @@ final class Development extends Component
                 );
     
             $this->development = $this->startDevelopment->execute($command);
-
+            
             $this->dispatch('development-started', $this->development->id);
 
         } catch (Exception $e) {

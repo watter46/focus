@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Collection;
 
 use App\Models\Task;
 use App\Livewire\Utils\Message\Message;
-use App\UseCases\Development\Domain\DevelopmentCommand;
+use App\UseCases\Development\DevelopmentCommand;
 use App\UseCases\Development\ChangeTaskUseCase;
 use App\UseCases\Development\FetchRemainingTasksUseCase;
 

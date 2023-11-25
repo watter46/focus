@@ -7,7 +7,7 @@ use Livewire\Attributes\On;
 use Livewire\Attributes\Locked;
 
 use App\Livewire\Development\Timer\Status;
-use App\UseCases\Development\Domain\DevelopmentCommand;
+use App\UseCases\Development\DevelopmentCommand;
 use App\UseCases\Development\FetchDevelopmentUseCase;
 
 

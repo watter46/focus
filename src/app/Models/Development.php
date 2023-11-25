@@ -21,8 +21,8 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
  * @property bool   $is_complete
  * @property int    $default_time
  * @property int    $remaining_time
- * @property Carbon $started_at
- * @property Carbon $finished_at
+ * @property string $started_at
+ * @property string $finished_at
  * @property array  $selected_id_list
  */
 final class Development extends Model
@@ -47,9 +47,7 @@ final class Development extends Model
 
     protected $casts = [
         'is_start'    => 'boolean',
-        'is_complete' => 'boolean',
-        'started_at'  => 'date',
-        'finished_at' => 'date',
+        'is_complete' => 'boolean'
     ];
 
     protected function selectedIdList(): Attribute
@@ -92,35 +90,16 @@ final class Development extends Model
     {
         return $this->remaining_time === $remainingTime;
     }
-
-    public function toEntity(): DevelopmentEntity
-    {
-        return (new DevelopmentEntity)->reconstruct($this);
-    }
-
-    public function fromEntity(
-        ?string $developmentId,
-        string  $projectId,
-        bool    $isStart,
-        bool    $isComplete,
-        int     $defaultTime,
-        int     $remainingTime,
-        ?Carbon $startedAt,
-        ?Carbon $finished,
-        array   $selectedIdList): self
-    {
-        $this->id             = $developmentId;
-        $this->project_id     = $projectId;
-        $this->is_start       = $isStart;
-        $this->is_complete    = $isComplete;
-        $this->default_time   = $defaultTime;
-        $this->remaining_time = $remainingTime;
-        $this->started_at     = $startedAt;
-        $this->finished_at    = $finished;
-        $this->selected_id_list = $selectedIdList;
-        
-        return $this;
-    }
+    
+    // /**
+    //  * エンティティに変換する
+    //  *
+    //  * @return DevelopmentEntity
+    //  */
+    // public function toEntity(): DevelopmentEntity
+    // {
+    //     return (new DevelopmentEntity)->reconstruct($this);
+    // }
     
     /**
      * timerRelation

@@ -6,13 +6,14 @@ use Exception;
 
 use App\Models\Project;
 use App\Models\Development;
-use App\UseCases\Development\Domain\DevelopmentCommand;
-use App\UseCases\Development\Domain\DevelopmentEntity;
+use App\UseCases\Development\DevelopmentCommand;
+use App\UseCases\Development\Infrastructure\DevelopmentFactory;
+use App\UseCases\Development\Infrastructure\DevelopmentModelBuilder;
 
 
 final readonly class FetchDevelopmentUseCase
 {
-    public function __construct(private DevelopmentEntity $entity)
+    public function __construct(private DevelopmentFactory $factory, private DevelopmentModelBuilder $builder)
     {
         //
     }
@@ -32,8 +33,10 @@ final readonly class FetchDevelopmentUseCase
             if ($project->canDevelop()) {
                 return $project->latestDevelopment;
             }
+
+            $development = $this->factory->create($project);
             
-            return $this->entity->create($project)->toModel();
+            return $this->builder->toModel($development);
 
         } catch (Exception $e) {
             throw $e;
