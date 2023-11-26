@@ -13,7 +13,7 @@ use App\Livewire\Utils\Label\LabelInterface;
 use App\Livewire\Utils\Message\Message;
 use App\UseCases\Project\FetchProjectUseCase;
 use App\UseCases\Project\UpdateLabelUseCase;
-use App\UseCases\Project\Domain\ProjectCommand;
+use App\UseCases\Project\ProjectCommand;
 
 
 final class LabelSelector extends Component
@@ -43,7 +43,7 @@ final class LabelSelector extends Component
     
     public function mount()
     {
-        $command = new ProjectCommand($this->projectId);
+        $command = ProjectCommand::find($this->projectId);
         
         $project = $this->fetchProject->execute($command);
 
@@ -78,7 +78,7 @@ final class LabelSelector extends Component
         try {
             $label = $this->presenter->change($this->label, $selectedLabel);
 
-            $command = new ProjectCommand($this->projectId, label: $label);
+            $command = ProjectCommand::updateLabel($this->projectId, $label);
             
             $project = $this->updateLabel->execute($command);
 

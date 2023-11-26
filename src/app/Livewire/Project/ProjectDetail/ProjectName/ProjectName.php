@@ -10,7 +10,7 @@ use App\UseCases\Project\FetchProjectUseCase;
 use App\UseCases\Project\CompleteProjectUseCase;
 use App\UseCases\Project\IncompleteProjectUseCase;
 use App\UseCases\Project\UpdateProjectNameUseCase;
-use App\UseCases\Project\Domain\ProjectCommand;
+use App\UseCases\Project\ProjectCommand;
 use App\Livewire\Project\NewProject\NewProject;
 use App\Livewire\Project\Projects\Projects;
 use App\Livewire\Utils\Message\Message;
@@ -42,7 +42,7 @@ final class ProjectName extends Component
 
     public function mount()
     {
-        $command = new ProjectCommand($this->projectId);
+        $command = ProjectCommand::find($this->projectId);
         
         $project = $this->fetchProject->execute($command);
 
@@ -64,11 +64,11 @@ final class ProjectName extends Component
         try {
             $this->validate();
 
-            $command = new ProjectCommand(
-                projectId: $this->projectId,
-                name: $this->form->projectName
+            $command = ProjectCommand::updateProjectName(
+                $this->projectId,
+                $this->form->projectName
             );
-
+            
             $project = $this->updateProjectName->execute($command);
 
             $this->form->setProperty($project);
@@ -90,7 +90,7 @@ final class ProjectName extends Component
     public function complete(): void
     {
         try {
-            $command = new ProjectCommand($this->projectId);
+            $command = ProjectCommand::find($this->projectId);
 
             $this->completeProject->execute($command);
 
@@ -109,7 +109,7 @@ final class ProjectName extends Component
     public function incomplete(): void
     {
         try {
-            $command = new ProjectCommand($this->projectId);
+            $command = ProjectCommand::find($this->projectId);
             
             $project = $this->incompleteProject->execute($command);
             
