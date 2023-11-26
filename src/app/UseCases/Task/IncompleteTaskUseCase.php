@@ -6,12 +6,14 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\Task;
-use App\UseCases\Task\Domain\TaskCommand;
+use App\UseCases\Task\Infrastructure\TaskFactory;
+use App\UseCases\Task\Infrastructure\TaskModelBuilder;
+use App\UseCases\Task\TaskCommand;
 
 
 final readonly class IncompleteTaskUseCase
 {
-    public function __construct()
+    public function __construct(private TaskFactory $factory, private TaskModelBuilder $builder)
     {
         //
     }
@@ -19,19 +21,21 @@ final readonly class IncompleteTaskUseCase
     public function execute(TaskCommand $command): Task
     {
         try {
-            /** @var Task $task */
-            $task = Task::findOrFail($command->taskId());
-
-            $incompleted = $task
-                            ->toEntity()
-                            ->incomplete()
-                            ->toModel();
+            /** @var Task $model */
+            $model = Task::findOrFail($command->taskId());
             
-            DB::transaction(function () use ($incompleted) {
-                $incompleted->save();
+            $incompleted = $this
+                ->factory
+                ->reconstruct($model)
+                ->incomplete();
+
+            $task = $this->builder->toModel($incompleted, $model);
+            
+            DB::transaction(function () use ($task) {
+                $task->save();
             });
 
-            return $incompleted;
+            return $task;
             
         } catch (Exception $e) {
             throw $e;

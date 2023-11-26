@@ -8,14 +8,14 @@ use Livewire\Attributes\Rule;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Collection;
 
 use App\Models\Project;
 use App\Livewire\Utils\Message\Message;
 use App\UseCases\Project\FetchProjectIncompleteTasksUseCase;
 use App\UseCases\Project\FetchProjectTasksUseCase;
-use App\UseCases\Project\Domain\ProjectCommand;
+use App\UseCases\Project\ProjectCommand;
 use App\UseCases\Task\AddTaskUseCase;
-use Illuminate\Database\Eloquent\Collection;
 
 
 final class Tasks extends Component
@@ -91,7 +91,7 @@ final class Tasks extends Component
      */
     public function fetch(): void
     {
-        $command = new ProjectCommand($this->projectId);
+        $command = ProjectCommand::find($this->projectId);
         
         $this->refresh = (string) Str::ulid();
 
@@ -115,7 +115,7 @@ final class Tasks extends Component
         $this->validate();
         
         try {
-            $command = new ProjectCommand(
+            $command = ProjectCommand::addTask(
                 $this->projectId,
                 name: $this->name,
                 content: $this->content

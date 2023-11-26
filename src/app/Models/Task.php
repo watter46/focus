@@ -48,11 +48,6 @@ class Task extends Model
         return $this->belongsTo(Project::class);
     }
 
-    public function toEntity(): TaskEntity
-    {
-        return (new TaskEntity)->reconstruct($this);
-    }
-
     public function fromEntity(
         $name,
         $content,

@@ -6,13 +6,20 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\Project;
-use App\UseCases\Project\Domain\ProjectEntity;
-use App\UseCases\Project\Domain\ProjectCommand;
+use App\UseCases\Project\Infrastructure\ProjectFactory;
+use App\UseCases\Project\Infrastructure\ProjectModelBuilder;
+use App\UseCases\Project\ProjectCommand;
+use App\UseCases\Task\Infrastructure\TaskFactory;
+use App\UseCases\Task\Infrastructure\TaskModelBuilder;
 
 
 final readonly class CreateProjectUseCase
 {
-    public function __construct(private ProjectEntity $entity)
+    public function __construct(
+        private ProjectFactory $factory,
+        private ProjectModelBuilder $builder,
+        private TaskFactory $taskFactory,
+        private TaskModelBuilder $taskBuilder)
     {
         //
     }
@@ -26,14 +33,23 @@ final readonly class CreateProjectUseCase
     public function execute(ProjectCommand $command): Project
     {
         try {
-            $project = $this
-                        ->entity
-                        ->create($command)
-                        ->toModel();
+            $created = $this
+                ->factory
+                ->create($command);
 
-            DB::transaction(function () use ($project) {        
+            $taskCreated = $this
+                ->taskFactory
+                ->create($command);
+
+            $project = $this->builder->toModel($created);
+            $task    = $this->taskBuilder->toModel($taskCreated);
+
+            DB::transaction(function () use ($project, $task) {        
                 $project->save();
-                $project->tasks()->save($project->tasks);
+                
+                $task->project()->associate($project);
+
+                $task->save();
             });
 
             return $project;

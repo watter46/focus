@@ -6,29 +6,42 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\Project;
-use App\UseCases\Project\Domain\ProjectCommand;
+use App\UseCases\Project\Infrastructure\ProjectFactory;
+use App\UseCases\Project\ProjectCommand;
+use App\UseCases\Task\Infrastructure\TaskFactory;
+use App\UseCases\Task\Infrastructure\TaskModelBuilder;
 
 
 final readonly class AddTaskUseCase
 {
-    public function __construct()
-    {
+    public function __construct(
+        private ProjectFactory $factory,
+        private TaskFactory    $taskFactory,
+        private TaskModelBuilder $builder
+    ) {
         //
     }
 
     public function execute(ProjectCommand $command): void
     {
         try {
-            /** @var Project $project */
-            $project = Project::findOrFail($command->projectId());
-
-            $added = $project
-                        ->toEntity()
-                        ->addTask($command)
-                        ->toModel();
+            /** @var Project $model */
+            $model = Project::query()
+                        ->with('tasks')
+                        ->findOrFail($command->projectId());
                         
-            DB::transaction(function () use ($added) {                                
-                $added->tasks()->save($added->tasks->last());
+            $project = $this->factory->reconstruct($model);
+
+            if (!$project->canAddTask()) return;
+            
+            $created = $this->taskFactory->create($command);
+
+            $task = $this->builder->toModel($created);
+                        
+            DB::transaction(function () use ($model, $task) {                                
+                $task->project()->associate($model);
+                
+                $task->save();
             });
 
         } catch (Exception $e) {

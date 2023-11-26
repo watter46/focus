@@ -4,62 +4,31 @@ namespace App\UseCases\Project\Domain;
 
 use Exception;
 
-use App\Models\Project;
-use App\Models\Task;
 use App\Constants\ProjectNameConstant;
 use App\Livewire\Utils\Label\Enum\LabelType;
-use App\UseCases\Project\Domain\ProjectCommand;
-use App\UseCases\Task\Domain\TaskEntity;
+use App\UseCases\Project\ProjectCommand;
 
 
-final class ProjectEntity
+final readonly class ProjectEntity
 {
-    private string    $projectName;
-    private LabelType $label;
-    private bool      $isComplete;
+    private ?string     $projectId;
+    private ?string     $projectName;
+    private ?LabelType  $label;
+    private ?bool       $isComplete;
+    private ?TaskIdList $taskIdList;
 
-    private Project $project;
-    private Task    $task;
-
-    public function __construct()
-    {
-        $this->project = new Project;
-    }
-
-    /**
-     * 初期値を生成する
-     *
-     * @param  ProjectCommand $command
-     * @return self
-     */
-    public function create(ProjectCommand $command): self
-    {
-        $this->projectName = $command->projectName();
-        $this->label       = $command->label();
-        $this->isComplete  = false;
-
-        $this->task = (new TaskEntity)->create($command)->toModel();
-
-        $this->validate();
-        
-        return $this;
-    }
-    
-    /**
-     * DBから再構築する
-     *
-     * @param  Project $project
-     * @return self
-     */
-    public function reconstruct(Project $project): self
-    {
-        $this->project = $project;
-
-        $this->projectName = $project->project_name;
-        $this->label       = $project->label;
-        $this->isComplete  = $project->is_complete;
-        
-        return $this;
+    public function __construct(
+        ?string     $projectId   = null,
+        ?string     $projectName = null,
+        ?LabelType  $label       = null,
+        ?bool       $isComplete  = null,
+        ?TaskIdList $taskIdList  = null
+    ) {
+        $this->projectId   = $projectId;
+        $this->projectName = $projectName;
+        $this->label       = $label;
+        $this->isComplete  = $isComplete;
+        $this->taskIdList  = $taskIdList;
     }
     
     /**
@@ -70,11 +39,7 @@ final class ProjectEntity
      */
     public function updateProjectName(ProjectCommand $command): self
     {
-        $this->projectName = $command->name();
-
-        $this->validate();
-        
-        return $this;
+        return $this->changeAttribute(projectName: $command->projectName());
     }
 
     /**
@@ -84,10 +49,8 @@ final class ProjectEntity
      * @return self
      */
     public function updateLabel(ProjectCommand $command): self
-    {
-        $this->label = $command->label();
-        
-        return $this;
+    {        
+        return $this->changeAttribute(label: $command->label());
     }
     
     /**
@@ -97,9 +60,7 @@ final class ProjectEntity
      */
     public function complete(): self
     {
-        $this->isComplete = true;
-
-        return $this;
+        return $this->changeAttribute(isComplete: true);
     }
 
     /**
@@ -109,22 +70,21 @@ final class ProjectEntity
      */
     public function incomplete(): self
     {
-        $this->isComplete = false;
-
-        return $this;
+        return $this->changeAttribute(isComplete: false);
     }
-
-    public function addTask(ProjectCommand $command): self
-    {
-        $task = (new TaskEntity)->create($command)->toModel();
         
-        $this->project->tasks->push($task);
-
-        if ($this->project->tasks->count() > 10) {
-            throw new Exception("タスクの最大数は10です。");
-        }
-
-        return $this;
+    /**
+     * タスクを追加できるか判定する
+     *
+     * @return bool
+     */
+    public function canAddTask(): bool
+    {
+        if (!$this->taskIdList->canAddTask()) {
+            throw new Exception(TaskIdList::TASK_LIMIT_EXCEEDED_MESSAGE);
+        };
+        
+        return true;
     }
 
     public function validate(): void
@@ -132,20 +92,39 @@ final class ProjectEntity
         ProjectNameConstant::isValid($this->projectName);
     }
 
-    public function toModel(): Project
-    {        
-        if ($this->project->tasks->isEmpty()) {            
-            return $this->project->fromEntity(
-                $this->projectName,
-                $this->label,
-                $this->isComplete
-            )->setRelation('tasks', $this->task);
-        }
-
-        return $this->project->fromEntity(
-            $this->projectName,
-            $this->label,
-            $this->isComplete
+    private function changeAttribute(
+        ?string    $projectId   = null,
+        ?string    $projectName = null,
+        ?LabelType $label       = null,
+        ?bool      $isComplete  = null): self
+    {
+        $this->validate();
+        
+        return new self(
+            projectId:   $projectId   ?? $this->projectId,
+            projectName: $projectName ?? $this->projectName,
+            label:       $label       ?? $this->label,
+            isComplete:  $isComplete  ?? $this->isComplete
         );
+    }
+
+    public function projectId(): ?string
+    {
+        return $this->projectId;
+    }
+
+    public function projectName(): string
+    {
+        return $this->projectName;
+    }
+
+    public function label(): LabelType
+    {
+        return $this->label;
+    }
+
+    public function isComplete(): bool
+    {
+        return $this->isComplete;
     }
 }

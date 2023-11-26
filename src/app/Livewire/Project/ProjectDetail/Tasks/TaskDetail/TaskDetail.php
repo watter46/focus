@@ -10,7 +10,7 @@ use Livewire\Attributes\On;
 
 use App\Models\Task;
 use App\Livewire\Utils\Message\Message;
-use App\UseCases\Task\Domain\TaskCommand;
+use App\UseCases\Task\TaskCommand;
 use App\UseCases\Task\CompleteTaskUseCase;
 use App\UseCases\Task\IncompleteTaskUseCase;
 use App\UseCases\Task\UpdateTaskUseCase;
@@ -64,7 +64,7 @@ final class TaskDetail extends Component
     public function complete(): void
     {
         try {
-            $command = new TaskCommand($this->task->id);
+            $command = TaskCommand::find($this->task->id);
             
             $this->completeTask->execute($command);
 
@@ -85,7 +85,7 @@ final class TaskDetail extends Component
     public function incomplete(): void
     {
         try {
-            $command = new TaskCommand($this->task->id);
+            $command = TaskCommand::find($this->task->id);
 
             $this->incompleteTask->execute($command);
 
@@ -108,7 +108,7 @@ final class TaskDetail extends Component
         $this->validate();
 
         try {
-            $command = new TaskCommand(
+            $command = TaskCommand::update(
                 $this->task->id,
                 name: $this->name,
                 content: $this->content
@@ -135,7 +135,7 @@ final class TaskDetail extends Component
     public function updateCheckbox(string $content): void
     {
         try {
-            $command = new TaskCommand(
+            $command = TaskCommand::update(
                 $this->task->id,
                 name: $this->name,
                 content: $content
@@ -162,7 +162,7 @@ final class TaskDetail extends Component
     public function reorder(string $content): void
     {
         try {
-            $command = new TaskCommand(
+            $command = TaskCommand::update(
                 $this->task->id,
                 name: $this->name,
                 content: $content

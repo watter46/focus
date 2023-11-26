@@ -9,7 +9,7 @@ use Illuminate\Support\Collection;
 
 use App\Livewire\Utils\Label\Enum\LabelType;
 use App\Livewire\Utils\Message\Message;
-use App\UseCases\Project\Domain\ProjectCommand;
+use App\UseCases\Project\ProjectCommand;
 use App\UseCases\Project\CreateProjectUseCase;
 use App\Livewire\Utils\Label\Enum\PurposeType;
 use App\Livewire\Utils\Label\LabelCommand;
@@ -66,11 +66,11 @@ final class NewProject extends Component
         $this->validate();
         
         try {
-            $command = new ProjectCommand(
+            $command = ProjectCommand::newProject(
                 projectName: $this->form->projectName,
-                label: LabelType::from($this->form->selectedLabel),
-                name: $this->form->name,
-                content: $this->form->content
+                label:       LabelType::from($this->form->selectedLabel),
+                name:        $this->form->name,
+                content:     $this->form->content
             );
             
             $project = $this->createProject->execute($command);

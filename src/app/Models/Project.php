@@ -14,7 +14,6 @@ use App\Models\Task;
 use App\Models\Development;
 use App\Livewire\Utils\Label\Enum\LabelType;
 use App\Livewire\Project\Projects\Progress\ProgressType;
-use App\UseCases\Project\Domain\ProjectEntity;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
@@ -50,34 +49,6 @@ final class Project extends Model
         static::addGlobalScope('user', function (Builder $builder) {
             $builder->where('user_id', Auth::user()->id);
         });
-    }
-    
-    /**
-     * エンティティに変換する
-     *
-     * @return ProjectEntity
-     */
-    public function toEntity(): ProjectEntity
-    {
-        return (new ProjectEntity)->reconstruct($this);
-    }
-    
-    /**
-     * モデルに変換する
-     *
-     * @return self
-     */
-    public function fromEntity(
-        string $projectName,
-        LabelType $label,
-        bool $isComplete): self
-    {
-        $this->user_id      = Auth::user()->id;
-        $this->project_name = $projectName;
-        $this->label        = $label;
-        $this->is_complete  = $isComplete;
-        
-        return $this;
     }
 
     /**
