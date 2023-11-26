@@ -6,7 +6,7 @@ use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Models\Project;
-use App\UseCases\Project\Domain\ProjectCommand;
+use App\UseCases\Project\ProjectCommand;
 
 
 final readonly class FetchProjectUseCase

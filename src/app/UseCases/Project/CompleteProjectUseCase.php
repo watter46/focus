@@ -7,12 +7,14 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Models\Project;
-use App\UseCases\Project\Domain\ProjectCommand;
+use App\UseCases\Project\Infrastructure\ProjectFactory;
+use App\UseCases\Project\Infrastructure\ProjectModelBuilder;
+use App\UseCases\Project\ProjectCommand;
 
 
 final readonly class CompleteProjectUseCase
 {
-    public function __construct()
+    public function __construct(private ProjectFactory $factory, private ProjectModelBuilder $builder)
     {
         //
     }
@@ -20,19 +22,21 @@ final readonly class CompleteProjectUseCase
     public function execute(ProjectCommand $command): Project
     {
         try {
-            /** @var Project $project */
-            $project = Project::findOrFail($command->projectId());
+            /** @var Project $model */
+            $model = Project::findOrFail($command->projectId());
 
-            $completed = $project
-                            ->toEntity()
-                            ->complete()
-                            ->toModel();
+            $completed = $this
+                ->factory
+                ->reconstruct($model)
+                ->complete();
+
+            $project = $this->builder->toModel($completed, $model);
                             
-            DB::transaction(function () use ($completed) {
-                $completed->save();
+            DB::transaction(function () use ($project) {
+                $project->save();
             });
 
-            return $completed;
+            return $project;
 
         } catch (ModelNotFoundException $e) {
             throw new ModelNotFoundException('プロジェクトが見つかりませんでした。');
