@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
-use Carbon\Carbon;
+use App\Events\HistoryCreated;
+use App\UseCases\Development\Domain\DevelopmentEntity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 
-use App\UseCases\Development\Domain\DevelopmentEntity;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 
@@ -59,6 +59,19 @@ final class Development extends Model
     }
     
     /**
+     * 開発を終了して、開発情報を作成する
+     *
+     * @param  DevelopmentEntity $development
+     * @return void
+     */
+    public function finish(DevelopmentEntity $development): void
+    {
+        $this->save();
+
+        HistoryCreated::dispatch($development);
+    }
+    
+    /**
      * 開発をスタートできるか判定する
      *
      * @return bool
@@ -90,16 +103,6 @@ final class Development extends Model
     {
         return $this->remaining_time === $remainingTime;
     }
-    
-    // /**
-    //  * エンティティに変換する
-    //  *
-    //  * @return DevelopmentEntity
-    //  */
-    // public function toEntity(): DevelopmentEntity
-    // {
-    //     return (new DevelopmentEntity)->reconstruct($this);
-    // }
     
     /**
      * timerRelation

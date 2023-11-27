@@ -125,8 +125,6 @@ final readonly class DevelopmentEntity
                 ->merge($command->selectedIdList())
                 ->toArray();
         
-        // validateする(count)
-
         return $this->changeAttribute(selectedIdList: $taskIdList);
     }
 
