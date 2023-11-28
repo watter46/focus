@@ -11,6 +11,7 @@ use App\UseCases\Development\DevelopmentCommand;
 use App\UseCases\Development\Infrastructure\DevelopmentFactory;
 use App\UseCases\Development\Infrastructure\DevelopmentModelBuilder;
 
+
 final readonly class CompleteDevelopmentUseCase
 {
     public function __construct(private DevelopmentFactory $factory, private DevelopmentModelBuilder $builder)
@@ -31,8 +32,8 @@ final readonly class CompleteDevelopmentUseCase
                         
             $development = $this->builder->toModel($completed, $model);
 
-            DB::transaction(function () use ($development) {
-                $development->save();
+            DB::transaction(function () use ($development, $completed) {
+                $development->finish($completed);
             });
 
             return $development;

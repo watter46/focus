@@ -2,11 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\Development;
+use App\Models\History;
 use App\Models\Project;
 use App\Models\Task;
-use App\Models\Timer;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 use App\Models\User;
@@ -19,10 +17,13 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()
+        User::factory(3)
             ->has(
-                Project::factory(5)
+                Project::factory(3)
                     ->has(Task::factory(3))
+            )
+            ->has(
+                History::factory(10)
             )
             ->create();
     }

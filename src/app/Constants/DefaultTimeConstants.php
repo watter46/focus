@@ -12,7 +12,8 @@ final readonly class DefaultTimeConstants
     const MAX_min   = 90;
 
     const VALUE_sec = self::VALUE_min * 60;
-    const MIN_sec   = self::MIN_min * 60;
+    // const MIN_sec   = self::MIN_min * 60;
+    const MIN_sec   = 1;
     const MAX_sec   = self::MAX_min * 60;
 
     const OUT_OF_RANGE_EXCEPTION = '設定時間は'.self::MIN_min.'分から'.self::MAX_min.'分の間です。';

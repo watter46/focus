@@ -11,6 +11,7 @@ use App\UseCases\Development\DevelopmentCommand;
 use App\UseCases\Development\Infrastructure\DevelopmentFactory;
 use App\UseCases\Development\Infrastructure\DevelopmentModelBuilder;
 
+
 final readonly class ClearDevelopmentUseCase
 {
     public function __construct(private DevelopmentFactory $factory, private DevelopmentModelBuilder $builder)
@@ -31,8 +32,8 @@ final readonly class ClearDevelopmentUseCase
 
             $development = $this->builder->toModel($cleared, $model);
             
-            DB::transaction(function () use ($development) {
-                $development->save();
+            DB::transaction(function () use ($development, $cleared) {
+                $development->finish($cleared);
             });
 
             return $development;

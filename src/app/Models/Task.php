@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 use App\Models\Project;
-use App\UseCases\Task\Domain\TaskEntity;
 
 /**
  * @property string $id
@@ -39,37 +38,25 @@ class Task extends Model
     ];
 
     /**
-     * projectsRelation
-     *
-     * @return BelongsTo<Project, Task>
-     */
-    public function project(): BelongsTo
-    {
-        return $this->belongsTo(Project::class);
-    }
-
-    public function fromEntity(
-        $name,
-        $content,
-        $isComplete): self
-    {
-        $this->name        = $name;
-        $this->content     = $content;
-        $this->is_complete = $isComplete;
-
-        return $this;
-    }
-
-    /**
      * 未完了のタスクを取得
      *
      * @param  Builder<Task> $query
-     * @param  string $id
      * @return void
      */
     public function scopeIncomplete(Builder $query): void
     {
         $query->where('is_complete', false);
+    }
+
+    /**
+     * 完了しているタスクを取得
+     *
+     * @param  Builder<Task> $query
+     * @return void
+     */
+    public function scopeCompleted(Builder $query): void
+    {
+        $query->where('is_complete', true);
     }
 
     /**
@@ -88,5 +75,15 @@ class Task extends Model
             'content',
             'is_complete'
         ]);
+    }
+
+    /**
+     * プロジェクトを取得する
+     *
+     * @return BelongsTo<Project, Task>
+     */
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
     }
 }

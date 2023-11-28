@@ -8,20 +8,21 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+
 use Illuminate\Support\Facades\Auth;
 
 use App\Models\Task;
 use App\Models\Development;
 use App\Livewire\Utils\Label\Enum\LabelType;
 use App\Livewire\Project\Projects\Progress\ProgressType;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
- * @property string $id
- * @property string $user_id
- * @property string $project_name
+ * @property string    $id
+ * @property string    $user_id
+ * @property string    $project_name
  * @property LabelType $label
- * @property bool $is_complete
+ * @property bool      $is_complete
  */
 final class Project extends Model
 {
@@ -43,6 +44,24 @@ final class Project extends Model
         'is_complete' => 'boolean',
         'label'       => LabelType::class
     ];
+
+    /**
+     * 開発できる状態か判定する
+     *
+     * @return bool
+     */
+    public function canDevelop(): bool
+    {
+        if (!$this->latestDevelopment) {
+            return false;
+        }
+        
+        if ($this->latestDevelopment->is_complete) {
+            return false;
+        }
+
+        return true;
+    }
 
     protected static function booted()
     {
@@ -79,6 +98,38 @@ final class Project extends Model
             ProgressType::Completed => $query->where('is_complete', true),
             ProgressType::Unselected => $query->where('is_complete', false)
         };
+    }
+    
+    /**
+     * タスク数と未完了のタスク数を取得する
+     *
+     * @param  Builder<Project> $query
+     * @return void
+     */
+    public function scopeTasksCount(Builder $query)
+    {
+        $query->withCount([
+            'tasks',
+            'tasks as incomplete_tasks_count' => function (Builder $query) {
+                $query->where('is_complete', false);
+            }
+        ]);
+    }
+
+    /**
+     * 開発途中のプロジェクトを取得する
+     *
+     * @param  Builder<Project> $query
+     * @return void
+     */
+    public function scopeActiveDevelopments(Builder $query)
+    {
+        $query
+            ->whereHas('developments', function ($query) {
+                $query
+                    ->where('is_start', true)
+                    ->where('is_complete', false);
+            });
     }
 
     /**
@@ -136,52 +187,14 @@ final class Project extends Model
     }
 
     /**
-     * 開発できる状態か判定する
+     * 未完了のタスクをすべて取得する
      *
-     * @return bool
+     * @return HasMany
      */
-    public function canDevelop(): bool
+    public function completeTasks(): HasMany
     {
-        if (!$this->latestDevelopment) {
-            return false;
-        }
-        
-        if ($this->latestDevelopment->is_complete) {
-            return false;
-        }
-
-        return true;
-    }
-    
-    /**
-     * タスク数と未完了のタスク数を取得する
-     *
-     * @param  Builder<Project> $query
-     * @return void
-     */
-    public function scopeTasksCount(Builder $query)
-    {
-        $query->withCount([
-            'tasks',
-            'tasks as incomplete_tasks_count' => function (Builder $query) {
-                $query->where('is_complete', false);
-            }
-        ]);
-    }
-
-    /**
-     * 開発途中のプロジェクトを取得する
-     *
-     * @param  Builder<Project> $query
-     * @return void
-     */
-    public function scopeActiveDevelopments(Builder $query)
-    {
-        $query
-            ->whereHas('developments', function ($query) {
-                $query
-                    ->where('is_start', true)
-                    ->where('is_complete', false);
-            });
+        return $this
+                ->hasMany(Task::class)
+                ->where('is_complete', true);
     }
 }
