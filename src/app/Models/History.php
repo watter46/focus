@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Livewire\Utils\Label\Enum\LabelType;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\Auth;
  * @property string    $id
  * @property string    $user_id
  * @property string    $project_name
- * @property LabelType $is_start
+ * @property LabelType $label
  * @property string    $started_at
  * @property string    $finished_at
  * @property int       $elapsed_time
@@ -39,11 +40,20 @@ class History extends Model
         'completed_task_list'
     ];
 
+    protected $casts = [
+        'label' => LabelType::class
+    ];
+
     protected static function booted()
     {
         static::addGlobalScope('user', function (Builder $builder) {
             $builder->where('user_id', Auth::user()->id);
         });
+    }
+
+    public function scopeTotalElapsedTime(): int
+    {
+        return (int) $this->sum('elapsed_time');
     }
     
     /**
