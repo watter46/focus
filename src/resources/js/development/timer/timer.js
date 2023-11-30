@@ -1,54 +1,65 @@
 import { Cursor } from "./cursor";
 
 export class Timer {
-    #remainingTime;
-    #defaultTime;
-    #intervalId;
+    #remainingTime_sec;
+    #defaultTime_sec;
     #cursor;
 
-    constructor(defaultTime, remainingTime) { 
-        this.#defaultTime = defaultTime;
-        this.#remainingTime = remainingTime;
+    #timerId;
+    #endTime;
 
-        this.#display(this.#remainingTime);
+    constructor(defaultTime_sec, remainingTime) { 
+        this.#defaultTime_sec   = defaultTime_sec;
+        this.#remainingTime_sec = remainingTime;
+
+        this.#display(this.#remainingTime_sec);
 
         this.#cursor = new Cursor();
-        this.#cursor.updateCursorPosition(this.#remainingTime, this.#defaultTime);
+        this.#cursor.updateCursorPosition(this.#remainingTime_sec, this.#defaultTime_sec);
     }
 
     getRemainingTime = () => {
-        return this.#remainingTime;
+        return this.#remainingTime_sec;
     }
 
     start = () => {
-        this.#intervalId = setInterval(() => this.#tick(), 1000);
+        // endTimeを設定する
+        this.#endTime = new Date().getTime() + this.#remainingTime_sec * 1000;
+
+        this.#tick();
     }
 
-    stop = () => clearInterval(this.#intervalId);
+    stop = () => {
+        clearTimeout(this.#timerId);
+    }
 
     #complete = () => {
-        clearInterval(this.#intervalId);
+        clearTimeout(this.#timerId);
 
         Livewire.dispatch('timer-completed');
     }
 
     #tick = () => {
-        if (this.#remainingTime <= 0) {
+        const currentTime = new Date().getTime();
+
+        this.#remainingTime_sec = Math.round((this.#endTime - currentTime) / 1000);
+        
+        if (this.#remainingTime_sec <= 0) {
             this.#complete();
             return;
         }
 
-        this.#remainingTime--;
+        this.#cursor.updateCursorPosition(this.#remainingTime_sec, this.#defaultTime_sec);
+        this.#display(this.#remainingTime_sec);
 
-        this.#cursor.updateCursorPosition(this.#remainingTime, this.#defaultTime);
-        this.#display(this.#remainingTime);
+        this.#timerId = setTimeout(this.#tick, 1000)
     }
 
     #display = (time) => {
         const timerEl = document.getElementById('countdown');
 
         const format = (time) => {
-            const hours = Math.floor(time / 3600);
+            const hours   = Math.floor(time / 3600);
             const minutes = Math.floor((time - hours * 3600) / 60);
             const seconds = time - hours * 3600 - minutes * 60;
 
