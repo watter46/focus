@@ -1,6 +1,6 @@
 import { Timer } from "./timer/timer";
 
-window.addEventListener("livewire:init", () => {
+window.addEventListener("livewire:init", () => {    
     let timer;
 
     window.setupTime = (defaultTime, remainingTime) => {
@@ -8,7 +8,7 @@ window.addEventListener("livewire:init", () => {
     }
 
     window.getRemainingTime = () => timer.getRemainingTime();
-
+    
     Alpine.store('timer', {
         start() {
             timer.start();
