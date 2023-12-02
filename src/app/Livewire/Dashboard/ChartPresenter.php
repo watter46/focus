@@ -29,7 +29,7 @@ final readonly class ChartPresenter
         $histories->put('aWeekAgo', $aWeekAgo);
         $histories->put('totalTime', $totalTime);
         $histories->put('weeklyAvg', $weeklyAvg);
-
+        
         return $histories;
     }
 
