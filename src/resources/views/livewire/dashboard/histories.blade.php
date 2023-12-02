@@ -17,7 +17,7 @@
                         <div class="flex items-center justify-between h-full">
                             <p class="{{ $this->label($history->label)->get('class') }}">
                                 {{ $this->label($history->label)->get('text') }}
-                            <p class="mr-10 text-3xl text-sky-600">{{ $history->elapsed_time }} m</p>
+                            <p class="mr-10 text-3xl text-sky-600">{{ $history->toMin() }} m</p>
                         </div> 
                     </div>
 

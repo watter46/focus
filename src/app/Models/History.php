@@ -55,6 +55,12 @@ class History extends Model
     {
         return (int) $this->sum('elapsed_time');
     }
+
+    public function toMin(): float
+    {   
+        return round($this->elapsed_time / 60, 1);
+    }
+    
     
     /**
      * 完了しているタスク名のミューテタ
