@@ -2,6 +2,8 @@
 
 namespace App\UseCases\Development\Domain;
 
+use Exception;
+
 use App\UseCases\Util\UlidValidator;
 use App\UseCases\Development\DevelopmentCommand;
 
@@ -45,6 +47,10 @@ final readonly class Development
      */
     public function start(DevelopmentCommand $command): self
     {
+        if (empty($command->selectedIdList())) {
+            throw new Exception('タスクが選択されていません。');
+        }
+        
         return $this->changeAttribute(
             projectId: $command->projectId(),
             isStart: true,
