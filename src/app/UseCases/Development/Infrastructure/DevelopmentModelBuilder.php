@@ -24,7 +24,7 @@ final readonly class DevelopmentModelBuilder
         $model->started_at       = $dev->timer()->startedAt()?->value();
         $model->finished_at      = $dev->timer()->finishedAt()?->value();
         $model->selected_id_list = $dev->selectedIdList();
-
+        
         return $model;
     }
 }

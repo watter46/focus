@@ -2,7 +2,6 @@
 
 namespace App\UseCases\Development\Domain;
 
-use App\Models\Development;
 use App\UseCases\Util\UlidValidator;
 use App\UseCases\Development\DevelopmentCommand;
 
@@ -97,18 +96,16 @@ final readonly class DevelopmentEntity
     /**
      * 同じプロジェクトを再開発する
      * 
-     * @param Development $development
-     * 
      * @return self
      */
-    public function repeat(Development $development): self
-    {        
-        return $this->changeAttribute(
-            projectId: $development->project_id,
+    public function repeat(): self
+    {                
+        return new self(
+            projectId: $this->projectId,
             isStart: true,
             isComplete: false,
-            selectedIdList: $development->selected_id_list,
-            timer: $this->timer->start(defaultTime: $development->default_time)
+            selectedIdList: $this->selectedIdList,
+            timer: $this->timer->repeat(defaultTime: $this->timer()->defaultTime())
         );
     }
     

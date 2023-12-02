@@ -3,7 +3,6 @@
 namespace App\UseCases\Development;
 
 use Exception;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Models\Development;
@@ -28,16 +27,10 @@ final readonly class RepeatDevelopmentUseCase
 
             $repeated = $this
                 ->factory
-                ->create($project)
-                ->repeat($project->latestDevelopment);
+                ->reconstruct($project->latestDevelopment)
+                ->repeat();
             
-            $development = $this->builder->toModel($repeated);
-                            
-            DB::transaction(function () use ($development) {
-                $development->save();
-            });
-            
-            return $development;
+            return $this->builder->toModel($repeated);
 
         } catch (ModelNotFoundException $e) {
             throw new ModelNotFoundException('プロジェクトが見つかりませんでした。');
