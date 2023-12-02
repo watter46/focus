@@ -18,9 +18,13 @@ class ProjectDetailTest extends TestCase
     
     public function test_レンダリングしているか()
     {
-        $this->actingAs(User::factory()->create());
+        $user = User::factory()->create();
 
-        $project = Project::factory()->create();
+        $this->actingAs($user);
+
+        $project = Project::factory()
+            ->state(['user_id' => $user->id])
+            ->create();
 
         $this->get("/projects/$project->id")
             ->assertSeeLivewire(ProjectDetail::class);
@@ -28,9 +32,13 @@ class ProjectDetailTest extends TestCase
 
     public function test_ProjectIdが設定されているか()
     {
-        $this->actingAs(User::factory()->create());
+        $user = User::factory()->create();
 
-        $project = Project::factory()->create();
+        $this->actingAs($user);
+
+        $project = Project::factory()
+            ->state(['user_id' => $user->id])
+            ->create();
 
         Livewire::test(ProjectDetail::class, ['projectId' => $project->id])
             ->assertSet('projectId', $project->id);

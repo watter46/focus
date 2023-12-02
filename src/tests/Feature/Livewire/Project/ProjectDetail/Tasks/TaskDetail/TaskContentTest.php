@@ -19,13 +19,15 @@ class TaskContentTest extends TestCase
 
     public function test_レンダリングされるか()
     {   
-        $this->actingAs(User::factory()->create());
+        $user = User::factory()->create();
+
+        $this->actingAs($user);
 
         $project = Project::factory()
-                        ->has(
-                            Task::factory()
-                            ->state(fn() => ['content' => 'test content']))
-                        ->create();
+            ->state(['user_id' => $user->id])
+            ->has(Task::factory()
+                ->state(fn() => ['content' => 'test content']))
+            ->create();
 
         /** @var Task $task */
         $task = $project->incompleteTasks()->first();

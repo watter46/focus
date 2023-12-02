@@ -21,17 +21,19 @@ class TaskDetailTest extends TestCase
     
     public function test_レンダリングされるか()
     {
-        $this->actingAs(User::factory()->create());
+        $user = User::factory()->create();
+        
+        $this->actingAs($user);
 
         $project = Project::factory()
-                        ->has(
-                            Task::factory()
-                            ->state(new Sequence([
-                                'name'        => 'name test',
-                                'content'     => 'content test',
-                                'is_complete' => false
-                            ])))
-                        ->create();
+            ->state(['user_id' => $user->id])
+            ->has(Task::factory()
+                ->state(new Sequence([
+                    'name'        => 'name test',
+                    'content'     => 'content test',
+                    'is_complete' => false
+                ])))
+            ->create();
 
         $task = $project->incompleteTasks()->first();
 
@@ -44,17 +46,19 @@ class TaskDetailTest extends TestCase
 
     public function test_タスクを完了してdispatchできるか()
     {
-        $this->actingAs(User::factory()->create());
+        $user = User::factory()->create();
+        
+        $this->actingAs($user);
 
         $project = Project::factory()
-                        ->has(
-                            Task::factory()
-                            ->state(new Sequence([
-                                'name'        => 'name test',
-                                'content'     => 'content test',
-                                'is_complete' => false
-                            ])))
-                        ->create();
+            ->state(['user_id' => $user->id])
+            ->has(Task::factory()
+                ->state(new Sequence([
+                    'name'        => 'name test',
+                    'content'     => 'content test',
+                    'is_complete' => false
+                ])))
+            ->create();
 
         $task = $project->incompleteTasks()->first();
 
@@ -74,17 +78,19 @@ class TaskDetailTest extends TestCase
 
     public function test_タスクを未完了にしてdispatchできるか()
     {
-        $this->actingAs(User::factory()->create());
+        $user = User::factory()->create();
+        
+        $this->actingAs($user);
 
         $project = Project::factory()
-                        ->has(
-                            Task::factory()
-                            ->state(new Sequence([
-                                'name'        => 'name test',
-                                'content'     => 'content test',
-                                'is_complete' => true
-                            ])))
-                        ->create();
+            ->state(['user_id' => $user->id])
+            ->has(Task::factory()
+                ->state(new Sequence([
+                    'name'        => 'name test',
+                    'content'     => 'content test',
+                    'is_complete' => true
+                ])))
+            ->create();
 
         $task = $project->tasks()->first();
 
@@ -104,17 +110,19 @@ class TaskDetailTest extends TestCase
 
     public function test_タスク名、タスク内容を更新してdispatchできるか()
     {
-        $this->actingAs(User::factory()->create());
+        $user = User::factory()->create();
+        
+        $this->actingAs($user);
 
         $project = Project::factory()
-                        ->has(
-                            Task::factory()
-                            ->state(new Sequence([
-                                'name'        => 'name test',
-                                'content'     => 'content test',
-                                'is_complete' => true
-                            ])))
-                        ->create();
+            ->state(['user_id' => $user->id])
+            ->has(Task::factory()
+                ->state(new Sequence([
+                    'name'        => 'name test',
+                    'content'     => 'content test',
+                    'is_complete' => true
+                ])))
+            ->create();
 
         $task = $project->tasks()->first();
 
@@ -140,20 +148,22 @@ class TaskDetailTest extends TestCase
 
     public function test_タスクのチェックボックスを更新してdispatchできるか()
     {
-        $this->actingAs(User::factory()->create());
+        $user = User::factory()->create();
+        
+        $this->actingAs($user);
 
         $content = "- [ ] content\n- [ ] content2";
         $updated = "- [|] content\n- [|] content2";
         
         $project = Project::factory()
-                        ->has(
-                            Task::factory()
-                            ->state(new Sequence([
-                                'name'        => 'name test',
-                                'content'     => $content,
-                                'is_complete' => true
-                            ])))
-                        ->create();
+            ->state(['user_id' => $user->id])
+            ->has(Task::factory()
+                ->state(new Sequence([
+                    'name'        => 'name test',
+                    'content'     => $content,
+                    'is_complete' => true
+                ])))
+            ->create();
 
         $task = $project->tasks()->first();
 
@@ -173,20 +183,22 @@ class TaskDetailTest extends TestCase
 
     public function test_タスクの並び替えでdispatchできるか()
     {
-        $this->actingAs(User::factory()->create());
+        $user = User::factory()->create();
+        
+        $this->actingAs($user);
 
         $content = "- [ ] content\n- [ ] content2";
         $updated = "- [ ] content2\n- [ ] content";
         
         $project = Project::factory()
-                        ->has(
-                            Task::factory()
-                            ->state(new Sequence([
-                                'name'        => 'name test',
-                                'content'     => $content,
-                                'is_complete' => true
-                            ])))
-                        ->create();
+            ->state(['user_id' => $user->id])
+            ->has(Task::factory()
+                ->state(new Sequence([
+                    'name'        => 'name test',
+                    'content'     => $content,
+                    'is_complete' => true
+                ])))
+            ->create();
 
         $task = $project->tasks()->first();
 

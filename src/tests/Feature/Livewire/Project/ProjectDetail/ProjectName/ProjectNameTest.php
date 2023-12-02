@@ -19,9 +19,13 @@ class ProjectNameTest extends TestCase
     
     public function test_レンダリングされるか()
     {
-        $this->actingAs(User::factory()->create());
+        $user = User::factory()->create();
 
-        $project = Project::factory()->create();
+        $this->actingAs($user);
+
+        $project = Project::factory()
+            ->state(['user_id' => $user->id])
+            ->create();
 
         Livewire::test(ProjectName::class, ['projectId' => $project->id])
             ->assertSeeLivewire(ProjectName::class);
@@ -29,11 +33,14 @@ class ProjectNameTest extends TestCase
 
     public function test_アップデート後にdispatchを発行するか()
     {
-        $this->actingAs(User::factory()->create());
+        $user = User::factory()->create();
+
+        $this->actingAs($user);
 
         $project = Project::factory()
-                        ->has(Task::factory())
-                        ->create();
+            ->state(['user_id' => $user->id])
+            ->has(Task::factory())
+            ->create();
 
         Livewire::test(ProjectName::class, ['projectId' => $project->id])
             ->set('form.projectName', 'updatedProjectName')
@@ -45,11 +52,14 @@ class ProjectNameTest extends TestCase
 
     public function test_プロジェクトを完了後にプロジェクト一覧画面に移動するか()
     {
-        $this->actingAs(User::factory()->create());
+        $user = User::factory()->create();
+
+        $this->actingAs($user);
 
         $project = Project::factory()
-                        ->has(Task::factory())
-                        ->create();
+            ->state(['user_id' => $user->id])
+            ->has(Task::factory())
+            ->create();
 
         Livewire::test(ProjectName::class, ['projectId' => $project->id])
             ->call('complete')
@@ -58,10 +68,13 @@ class ProjectNameTest extends TestCase
 
     public function test_プロジェクトを未完了状態にした後にdispatchを発行するか()
     {
-        $this->actingAs(User::factory()->create());
+        $user = User::factory()->create();
+
+        $this->actingAs($user);
 
         $project = Project::factory()
             ->state([
+                'user_id'     => $user->id,
                 'is_complete' => true
             ])
             ->has(Task::factory())
