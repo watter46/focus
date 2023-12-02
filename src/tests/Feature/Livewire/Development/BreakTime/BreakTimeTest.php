@@ -2,49 +2,53 @@
 
 namespace Tests\Feature\Livewire\Development\BreakTime;
 
-use App\Livewire\Development\BreakTime\BreakTime;
-use App\Models\Project;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Livewire\Livewire;
 use Tests\TestCase;
+
+use App\Models\Project;
+use App\Models\User;
+use App\Livewire\Development\BreakTime\BreakTime;
 
 
 class BreakTimeTest extends TestCase
 {
     use RefreshDatabase;
 
+    private Project $project;
+    private $component;
+
+    public function setUp(): void
+    {
+        Parent::setUp();
+        
+        $user = User::factory()->create();
+        
+        $this->actingAs($user);
+
+        $this->project = Project::factory()->state(['user_id' => $user->id])->create();
+
+        $this->component = Livewire::test(BreakTime::class, ['projectId' => $this->project->id]);
+    }
+
     public function test_レンダリングされるか()
     {
-        $this->actingAs(User::factory()->create());
-
-        $project = Project::factory()->create();
-
-        Livewire::test(BreakTime::class, ['projectId' => $project->id])
+        $this->component
             ->assertSet('breakTime', 5)
             ->assertStatus(200);
     }
 
     public function test_リピートされるか()
     {
-        $this->actingAs(User::factory()->create());
-
-        $project = Project::factory()->create();
-
-        Livewire::test(BreakTime::class, ['projectId' => $project->id])
+        $this->component
             ->call('repeat')
-            ->assertDispatched('break-time-finished', $project->id);
+            ->assertDispatched('break-time-finished', $this->project->id);
     }
 
     public function test_タスク選択画面に移動するか()
     {
-        $this->actingAs(User::factory()->create());
-
-        $project = Project::factory()->create();
-
-        Livewire::test(BreakTime::class, ['projectId' => $project->id])
+        $this->component
             ->call('fresh')
-            ->assertRedirect("/developments/{$project->id}");
+            ->assertRedirect("/developments/{$this->project->id}");
     }
 }
