@@ -23,9 +23,12 @@ final class ProjectsTest extends TestCase
 
     public function test_未完了のプロジェクトのみ取得しているか()
     {
-        $this->actingAs(User::factory()->create());
+        $user = User::factory()->create();
+
+        $this->actingAs($user);
 
         Project::factory()
+            ->state(['user_id' => $user->id])
             ->count(5)
             ->state(new Sequence(
                 ['is_complete' => false],
@@ -43,9 +46,12 @@ final class ProjectsTest extends TestCase
 
     public function test_ラベルがソートできるか()
     {
-        $this->actingAs(User::factory()->create());
+        $user = User::factory()->create();
+
+        $this->actingAs($user);
 
         Project::factory()
+            ->state(['user_id' => $user->id])
             ->count(5)
             ->state(new Sequence(
                 ['is_complete' => false, 'label' => LabelType::Todo],
@@ -90,9 +96,12 @@ final class ProjectsTest extends TestCase
 
     public function test_進捗がソートできるか()
     {
-        $this->actingAs(User::factory()->create());
+        $user = User::factory()->create();
+
+        $this->actingAs($user);
 
         Project::factory()
+            ->state(['user_id' => $user->id])
             ->count(5)
             ->state(new Sequence(
                 ['is_complete' => false, 'label' => LabelType::Todo],
@@ -130,9 +139,12 @@ final class ProjectsTest extends TestCase
 
     public function test_進捗の数が常に1追加になるか()
     {
-        $this->actingAs(User::factory()->create());
+        $user = User::factory()->create();
+        
+        $this->actingAs($user);
 
         Project::factory()
+            ->state(['user_id' => $user->id])
             ->count(5)
             ->state(new Sequence(
                 ['is_complete' => false],
@@ -152,9 +164,12 @@ final class ProjectsTest extends TestCase
     
     public function test_ラベルと進捗でソートできるか()
     {
-        $this->actingAs(User::factory()->create());
+        $user = User::factory()->create();
+
+        $this->actingAs($user);
 
         Project::factory()
+            ->state(['user_id' => $user->id])
             ->count(5)
             ->state(new Sequence(
                 ['is_complete' => false, 'label' => LabelType::Fix],

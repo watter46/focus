@@ -24,7 +24,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {        
         Component::macro('notify', function (Message $message) {
-
             $this->dispatch('notify', message: $message->toArray());
         });
     }

@@ -18,31 +18,39 @@ use App\Livewire\Utils\Message\Message;
 class TasksTest extends TestCase
 {
     use RefreshDatabase;
+
+    private Project $project;
+    private $component;
+
+    public function setUp(): void
+    {
+        Parent::setUp();
+        
+        $user = User::factory()->create();
+
+        $this->actingAs($user);
+
+        $this->project = Project::factory()
+            ->state(['user_id' => $user->id])
+            ->has(Task::factory(6)
+                ->state(new Sequence(
+                    ['is_complete' => false],
+                    ['is_complete' => true],
+                ))
+            )
+            ->create();
+
+        $this->component = Livewire::test(Tasks::class, ['projectId' => $this->project->id]);
+    }
     
     public function test_レンダリングされるか()
     {
-        $this->actingAs(User::factory()->create());
-
-        $project = Project::factory()->create();
-
-        Livewire::test(Tasks::class, ['projectId' => $project->id])
-            ->assertSeeLivewire(Tasks::class);
+        $this->component->assertSeeLivewire(Tasks::class);
     }
 
     public function test_レンダリングしたら未完了のタスクのみ取得しているか()
     {
-        $this->actingAs(User::factory()->create());
-
-        $project = Project::factory()
-                        ->has(Task::factory(6)
-                            ->state(new Sequence(
-                                ['is_complete' => false],
-                                ['is_complete' => true],
-                            ))
-                        )
-                        ->create();
-
-        Livewire::test(Tasks::class, ['projectId' => $project->id])
+        $this->component
             ->assertSet('isShowAll', false)
             ->assertViewHas('project', function (Project $project) {
                 $this->assertSame(3, count($project->incompleteTasks));
@@ -53,18 +61,7 @@ class TasksTest extends TestCase
 
     public function test_dispatchで全てのタスクを取得できるか()
     {
-        $this->actingAs(User::factory()->create());
-
-        $project = Project::factory()
-                        ->has(Task::factory(6)
-                            ->state(new Sequence(
-                                ['is_complete' => false],
-                                ['is_complete' => true],
-                            ))
-                        )
-                        ->create();
-
-        Livewire::test(Tasks::class, ['projectId' => $project->id])
+        $this->component
             ->dispatch('fetch-project-tasks')
             ->dispatch('refetch')
             ->assertSet('isShowAll', true)
@@ -77,19 +74,8 @@ class TasksTest extends TestCase
 
     public function test_タスクを追加できるか()
     {
-        $this->actingAs(User::factory()->create());
-
-        $project = Project::factory()
-                        ->has(Task::factory(6)
-                            ->state(new Sequence(
-                                ['is_complete' => false],
-                                ['is_complete' => true],
-                            ))
-                        )
-                        ->create();
-
         // レンダリングされるか
-        $rendered = Livewire::test(Tasks::class, ['projectId' => $project->id])
+        $rendered = $this->component
             ->set([
                 'name'    => 'name test',
                 'content' => 'content test'
@@ -127,23 +113,9 @@ class TasksTest extends TestCase
     }
 
     public function test_全てのタスクを取得している状態でタスクを追加できるか()
-    {
-        $this->actingAs(User::factory()->create());
-
-        $project = Project::factory()
-                        ->has(Task::factory(6)
-                            ->state(new Sequence(
-                                ['is_complete' => false],
-                                ['is_complete' => true],
-                            ))
-                        )
-                        ->create();
-
-        // レンダリングされるか
-        $rendered = Livewire::test(Tasks::class, ['projectId' => $project->id]);
-        
+    {        
         // 全てのタスクを取得できるか
-        $dispatchedAllTask = $rendered
+        $dispatchedAllTask = $this->component
             ->dispatch('fetch-project-tasks')
             ->dispatch('refetch')
             ->assertSet('isShowAll', true)
@@ -172,23 +144,23 @@ class TasksTest extends TestCase
 
     public function test_タスク数が11になったらエラーを通知するか()
     {
-        $this->actingAs(User::factory()->create());
+        $user = User::factory()->create();
 
-        $project = Project::factory()
-                        ->has(Task::factory(10)
-                            ->state(new Sequence(
-                                ['is_complete' => false],
-                                ['is_complete' => true],
-                            ))
-                        )
-                        ->create();
+        $this->actingAs($user);
 
-        // レンダリングされるか
-        $rendered = Livewire::test(Tasks::class, ['projectId' => $project->id]);
+        $this->project = Project::factory()
+            ->state(['user_id' => $user->id])
+            ->has(Task::factory(10)
+                ->state(new Sequence(
+                    ['is_complete' => false],
+                    ['is_complete' => true],
+                ))
+            )
+            ->create();
 
-        $e = new Exception("タスクの最大数は10です。");
+        $e = new Exception('タスクの最大数は10です。');
         
-        $rendered
+        Livewire::test(Tasks::class, ['projectId' => $this->project->id])
             ->set([
                 'name'    => 'name test',
                 'content' => 'content test'
