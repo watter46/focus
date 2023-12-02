@@ -15,15 +15,20 @@ use App\Livewire\Utils\Label\LabelCommand;
 use App\Livewire\Utils\Label\LabelPresenterResolver;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
+
 class LabelSelectorTest extends TestCase
 {
     use RefreshDatabase;
     
     public function test_レンダリングされるか()
     {
-        $this->actingAs(User::factory()->create());
+        $user = User::factory()->create();
+        
+        $this->actingAs($user);
 
-        $project = Project::factory()->create(); 
+        $project = Project::factory()
+            ->state(['user_id' => $user->id])
+            ->create();
 
         Livewire::test(LabelSelector::class, ['projectId' => $project->id])
             ->assertSeeLivewire(LabelSelector::class);
@@ -31,9 +36,13 @@ class LabelSelectorTest extends TestCase
 
     public function test_アップデート後にdispatchされるか()
     {
-        $this->actingAs(User::factory()->create());
+        $user = User::factory()->create();
+        
+        $this->actingAs($user);
 
-        $project = Project::factory()->create();
+        $project = Project::factory()
+            ->state(['user_id' => $user->id])
+            ->create();
 
         $command = new LabelCommand(new LabelPresenterResolver);
 
