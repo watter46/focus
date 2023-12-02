@@ -4,7 +4,7 @@ namespace App\UseCases\History\Domain;
 
 use Exception;
 
-use App\UseCases\Development\Domain\DevelopmentEntity;
+use App\UseCases\Development\Domain\Development;
 
 
 final readonly class ElapsedTime
@@ -16,7 +16,7 @@ final readonly class ElapsedTime
         }
     }
 
-    public static function create(DevelopmentEntity $development): self
+    public static function create(Development $development): self
     {
         $timer = $development->timer();
         

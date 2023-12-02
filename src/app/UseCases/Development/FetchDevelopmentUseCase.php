@@ -5,7 +5,7 @@ namespace App\UseCases\Development;
 use Exception;
 
 use App\Models\Project;
-use App\Models\Development;
+use App\Models\Development as EqDevelopment;
 use App\UseCases\Development\DevelopmentCommand;
 use App\UseCases\Development\Infrastructure\DevelopmentFactory;
 use App\UseCases\Development\Infrastructure\DevelopmentModelBuilder;
@@ -22,9 +22,9 @@ final readonly class FetchDevelopmentUseCase
      * Developmentを取得する
      *
      * @param  DevelopmentCommand $command
-     * @return Development
+     * @return EqDevelopment
      */
-    public function execute(DevelopmentCommand $command): Development
+    public function execute(DevelopmentCommand $command): EqDevelopment
     {
         try {
             /** @var Project $project */

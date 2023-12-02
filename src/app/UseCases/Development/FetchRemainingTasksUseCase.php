@@ -6,7 +6,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
-use App\Models\Development;
+use App\Models\Development as EqDevelopment;
 use App\Models\Task;
 use App\UseCases\Development\DevelopmentCommand;
 
@@ -27,8 +27,8 @@ final readonly class FetchRemainingTasksUseCase
     public function execute(DevelopmentCommand $command): Collection
     {
         try {
-            /** @var Development $development */
-            $development = Development::findOrFail($command->developmentId());
+            /** @var EqDevelopment $development */
+            $development = EqDevelopment::findOrFail($command->developmentId());
 
             return $development
                         ->load(['project.incompleteTasks' => function ($query) use ($development) {

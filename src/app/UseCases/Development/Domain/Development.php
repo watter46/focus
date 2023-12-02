@@ -6,7 +6,7 @@ use App\UseCases\Util\UlidValidator;
 use App\UseCases\Development\DevelopmentCommand;
 
 
-final readonly class DevelopmentEntity
+final readonly class Development
 {        
     private ?string $developmentId;
     private ?string $projectId;

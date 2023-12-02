@@ -2,10 +2,10 @@
 
 namespace App\UseCases\Development\Infrastructure;
 
-use App\Models\Development;
+use App\Models\Development as EqDevelopment;
 use App\Models\Project;
 use App\Models\Setting;
-use App\UseCases\Development\Domain\DevelopmentEntity;
+use App\UseCases\Development\Domain\Development;
 use App\UseCases\Development\Domain\FinishedAt;
 use App\UseCases\Development\Domain\StartedAt;
 use App\UseCases\Development\Domain\Timer;
@@ -19,9 +19,9 @@ final readonly class DevelopmentFactory
      *
      * @param Project $project
      * 
-     * @return DevelopmentEntity
+     * @return Development
      */
-    public function create(Project $project): DevelopmentEntity
+    public function create(Project $project): Development
     {        
         /** @var Setting $setting */
         $setting = Setting::get()->first() ?? (new SettingEntity)->create()->toModel();
@@ -33,7 +33,7 @@ final readonly class DevelopmentFactory
             remainingTime: $defaultTime
         );
 
-        return new DevelopmentEntity(
+        return new Development(
             projectId: $project->id,
             isStart: false,
             isComplete: false,
@@ -46,11 +46,11 @@ final readonly class DevelopmentFactory
      * DBからエンティティを再構築する
      * バリデーションはしない
      *
-     * @param Development $development
+     * @param EqDevelopment $development
      * 
-     * @return DevelopmentEntity
+     * @return Development
      */
-    public function reconstruct(Development $development): DevelopmentEntity
+    public function reconstruct(EqDevelopment $development): Development
     {
         $timer = new Timer(
             defaultTime: $development->default_time,
@@ -59,7 +59,7 @@ final readonly class DevelopmentFactory
             finishedAt: $development->finished_at ? FinishedAt::create($development->finished_at) : null
         );
         
-        return new DevelopmentEntity(
+        return new Development(
             developmentId: $development->id,
             projectId: $development->project_id,
             isStart: $development->is_start,

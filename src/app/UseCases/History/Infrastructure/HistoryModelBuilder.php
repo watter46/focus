@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 
 use App\Models\Development as EqDevelopment;
 use App\Models\History as EqHistory;
-use App\UseCases\Development\Domain\DevelopmentEntity;
+use App\UseCases\Development\Domain\Development;
 use App\UseCases\History\Domain\ElapsedTime;
 
 
@@ -18,7 +18,7 @@ final readonly class HistoryModelBuilder
         
     }
     
-    public function toModel(DevelopmentEntity $development, EqDevelopment $model): EqHistory
+    public function toModel(Development $development, EqDevelopment $model): EqHistory
     {
         try {
             $history = new EqHistory;

@@ -199,7 +199,7 @@ final class Development extends Component
             $command = DevelopmentCommand::findByProjectId($projectId);
 
             $this->development = $this->repeatDevelopment->execute($command);
-            dd($this->development);
+            
             $this->dispatch(
                 'on-repeat-timer',
                 defaultTime:    $this->development->default_time,

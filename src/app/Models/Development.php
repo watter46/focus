@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Events\HistoryCreated;
-use App\UseCases\Development\Domain\DevelopmentEntity;
+use App\UseCases\Development\Domain\Development as DevelopmentEntity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;

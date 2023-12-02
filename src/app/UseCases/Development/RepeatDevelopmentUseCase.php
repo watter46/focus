@@ -5,7 +5,7 @@ namespace App\UseCases\Development;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
-use App\Models\Development;
+use App\Models\Development as EqDevelopment;
 use App\Models\Project;
 use App\UseCases\Development\DevelopmentCommand;
 use App\UseCases\Development\Infrastructure\DevelopmentFactory;
@@ -19,7 +19,7 @@ final readonly class RepeatDevelopmentUseCase
         //
     }
 
-    public function execute(DevelopmentCommand $command): Development
+    public function execute(DevelopmentCommand $command): EqDevelopment
     {
         try {
             /** @var Project $project */
