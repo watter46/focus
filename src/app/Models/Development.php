@@ -2,16 +2,18 @@
 
 namespace App\Models;
 
-use App\Events\HistoryCreated;
-use App\UseCases\Development\Domain\Development as DevelopmentEntity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
-
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Carbon;
+
+use App\Events\HistoryCreated;
+use App\UseCases\Development\Domain\Development as DevelopmentEntity;
+
 
 /**
  * @property string $id
@@ -21,8 +23,8 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
  * @property bool   $is_complete
  * @property int    $default_time
  * @property int    $remaining_time
- * @property string $started_at
- * @property string $finished_at
+ * @property Carbon $started_at
+ * @property Carbon $finished_at
  * @property array  $selected_id_list
  */
 final class Development extends Model
