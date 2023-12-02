@@ -2,67 +2,71 @@
 
 namespace Tests\Feature\Livewire\Development\Timer;
 
-use App\Livewire\Development\Timer\Status;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Str;
 use Livewire\Livewire;
 use Tests\TestCase;
 
-use App\Livewire\Development\Timer\Timer;
 use App\Models\Project;
 use App\Models\User;
-use App\UseCases\Development\Domain\DevelopmentEntity;
-use Illuminate\Support\Str;
+use App\Livewire\Development\Timer\Status;
+use App\Livewire\Development\Timer\Timer;
+use App\UseCases\Development\Infrastructure\DevelopmentFactory;
+use App\UseCases\Development\Infrastructure\DevelopmentModelBuilder;
+
 
 class TimerTest extends TestCase
 {
     use RefreshDatabase;
-    
-    public function test_レンダリングされるか()
+
+    private $component;
+    private Project $project;
+
+    public function setUp(): void
     {
-        $this->actingAs(User::factory()->create());
+        Parent::setUp();
 
-        $project = Project::factory()->create();
+        $user = User::factory()->create();
+        
+        $this->actingAs($user);
 
-        $development = (new DevelopmentEntity)
-                        ->create($project)
-                        ->toModel();
+        $this->project = Project::factory()->state(['user_id' => $user->id])->create();
 
-        Livewire::test(Timer::class, [
-            'projectId'     => $project->id,
-            'defaultTime'   => $development->default_time,
-            'remainingTime' => $development->remaining_time,
-            'isStart'       => $development->is_start
-        ])
-        ->assertSet('status', (new Status)->toDisabled())
-        ->assertSet('muteStart', true)
-        ->assertSet('muteClear', true)
-        ->assertSet('muteTimeSet', false)
-        ->assertSet('selectedIdList', [])
-        ->assertSeeLivewire(Timer::class);
-    }
+        /** @var DevelopmentFactory $factory */
+        $factory = app(DevelopmentFactory::class);
 
-    public function test_スタートできるか()
-    {
-        $this->actingAs(User::factory()->create());
+        /** @var DevelopmentModelBuilder $builder */
+        $builder = app(DevelopmentModelBuilder::class);
+        
+        $entity = $factory->create($this->project);
 
-        $project = Project::factory()->create();
+        $development = $builder->toModel($entity);
 
-        $development = (new DevelopmentEntity)
-                        ->create($project)
-                        ->toModel();
-
-        $rendered = Livewire::test(Timer::class, [
-                'projectId'     => $project->id,
+        $this->component = Livewire::test(Timer::class, [
+                'projectId'     => $this->project->id,
                 'defaultTime'   => $development->default_time,
                 'remainingTime' => $development->remaining_time,
                 'isStart'       => $development->is_start
             ]);
+    }
+    
+    public function test_レンダリングされるか()
+    {
+        $this->component
+            ->assertSet('status', (new Status)->toDisabled())
+            ->assertSet('muteStart', true)
+            ->assertSet('muteClear', true)
+            ->assertSet('muteTimeSet', false)
+            ->assertSet('selectedIdList', [])
+            ->assertSeeLivewire(Timer::class);
+    }
 
+    public function test_スタートできるか()
+    {
         $taskId = (string) Str::ulid();
         $selectedIdList = [$taskId];
             
-        $rendered
+        $this->component
             ->set('selectedIdList', $selectedIdList)
             ->call('start')
             ->assertSet('status', (new Status)->toRunning())
@@ -79,25 +83,10 @@ class TimerTest extends TestCase
 
     public function test_ストップできるか()
     {
-        $this->actingAs(User::factory()->create());
-
-        $project = Project::factory()->create();
-
-        $development = (new DevelopmentEntity)
-                        ->create($project)
-                        ->toModel();
-
-        $rendered = Livewire::test(Timer::class, [
-                'projectId'     => $project->id,
-                'defaultTime'   => $development->default_time,
-                'remainingTime' => $development->remaining_time,
-                'isStart'       => $development->is_start
-            ]);
-
         $taskId = (string) Str::ulid();
         $selectedIdList = [$taskId];
             
-        $started = $rendered
+        $started = $this->component
             ->set('selectedIdList', $selectedIdList)
             ->call('start')
             ->assertSet('status', (new Status)->toRunning())
@@ -126,25 +115,10 @@ class TimerTest extends TestCase
 
     public function test_クリアできるか()
     {
-        $this->actingAs(User::factory()->create());
-
-        $project = Project::factory()->create();
-
-        $development = (new DevelopmentEntity)
-                        ->create($project)
-                        ->toModel();
-
-        $rendered = Livewire::test(Timer::class, [
-                'projectId'     => $project->id,
-                'defaultTime'   => $development->default_time,
-                'remainingTime' => $development->remaining_time,
-                'isStart'       => $development->is_start
-            ]);
-
         $taskId = (string) Str::ulid();
         $selectedIdList = [$taskId];
             
-        $started = $rendered
+        $started = $this->component
             ->set('selectedIdList', $selectedIdList)
             ->call('start')
             ->assertSet('status', (new Status)->toRunning())
@@ -165,25 +139,10 @@ class TimerTest extends TestCase
 
     public function test_リピートできるか()
     {
-        $this->actingAs(User::factory()->create());
-
-        $project = Project::factory()->create();
-
-        $development = (new DevelopmentEntity)
-                        ->create($project)
-                        ->toModel();
-
-        $rendered = Livewire::test(Timer::class, [
-                'projectId'     => $project->id,
-                'defaultTime'   => $development->default_time,
-                'remainingTime' => $development->remaining_time,
-                'isStart'       => $development->is_start
-            ]);
-
         $taskId = (string) Str::ulid();
         $selectedIdList = [$taskId];
             
-        $started = $rendered
+        $started = $this->component
             ->set('selectedIdList', $selectedIdList)
             ->call('start')
             ->assertSet('status', (new Status)->toRunning())
@@ -207,22 +166,7 @@ class TimerTest extends TestCase
 
     public function test_timerを強制終了できるか()
     {
-        $this->actingAs(User::factory()->create());
-
-        $project = Project::factory()->create();
-
-        $development = (new DevelopmentEntity)
-                        ->create($project)
-                        ->toModel();
-
-        $rendered = Livewire::test(Timer::class, [
-                'projectId'     => $project->id,
-                'defaultTime'   => $development->default_time,
-                'remainingTime' => $development->remaining_time,
-                'isStart'       => $development->is_start
-            ]);
-
-        $rendered
+        $this->component
             ->dispatch('on-kill-timer')
             ->assertDispatched('timer-killed')
             ->assertSet('status', (new Status)->toDisabled())
@@ -235,22 +179,7 @@ class TimerTest extends TestCase
 
     public function test_タイマーを初期化できるか()
     {
-        $this->actingAs(User::factory()->create());
-
-        $project = Project::factory()->create();
-
-        $development = (new DevelopmentEntity)
-                        ->create($project)
-                        ->toModel();
-
-        $rendered = Livewire::test(Timer::class, [
-                'projectId'     => $project->id,
-                'defaultTime'   => $development->default_time,
-                'remainingTime' => $development->remaining_time,
-                'isStart'       => $development->is_start
-            ]);
-        
-        $rendered
+        $this->component
             ->dispatch('initialize')
             ->assertSet('status', (new Status)->toDisabled())
             ->assertSet('isStart', false)
@@ -262,23 +191,8 @@ class TimerTest extends TestCase
     }
 
     public function test_時間を設定できるか()
-    {
-        $this->actingAs(User::factory()->create());
-
-        $project = Project::factory()->create();
-
-        $development = (new DevelopmentEntity)
-                        ->create($project)
-                        ->toModel();
-
-        $rendered = Livewire::test(Timer::class, [
-                'projectId'     => $project->id,
-                'defaultTime'   => $development->default_time,
-                'remainingTime' => $development->remaining_time,
-                'isStart'       => $development->is_start
-            ]);
-        
-        $rendered
+    {        
+        $this->component
             ->call('setTime', 30)
             ->assertSet('defaultTime', 30)
             ->assertSet('remainingTime', 30);
@@ -286,30 +200,15 @@ class TimerTest extends TestCase
 
     public function test_TaskIdを設定できるか()
     {
-        $this->actingAs(User::factory()->create());
-
-        $project = Project::factory()->create();
-
-        $development = (new DevelopmentEntity)
-                        ->create($project)
-                        ->toModel();
-
-        $rendered = Livewire::test(Timer::class, [
-                'projectId'     => $project->id,
-                'defaultTime'   => $development->default_time,
-                'remainingTime' => $development->remaining_time,
-                'isStart'       => $development->is_start
-            ]);
-
         $taskId = (string) Str::ulid();
         $selectedIdList = [$taskId];
         
-        $rendered
+        $this->component
             ->dispatch('setSelectedIdList', $selectedIdList)
             ->assertSet('selectedIdList', $selectedIdList)
             ->assertSet('status', (new Status)->toReady());
 
-        $rendered
+        $this->component
             ->dispatch('setSelectedIdList', [])
             ->assertSet('selectedIdList', [])
             ->assertSet('status', (new Status)->toDisabled());
