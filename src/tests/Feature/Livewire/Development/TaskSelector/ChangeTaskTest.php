@@ -3,7 +3,6 @@
 namespace Tests\Feature\Livewire\Development\TaskSelector;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
@@ -14,7 +13,7 @@ use App\Models\Task;
 use App\Models\User;
 use App\Livewire\Development\TaskSelector\ChangeTask;
 use App\Livewire\Utils\Message\Message;
-use App\UseCases\Development\Domain\DevelopmentCommand;
+use App\UseCases\Development\DevelopmentCommand;
 use App\UseCases\Development\StartDevelopmentUseCase;
 
 
@@ -24,16 +23,19 @@ class ChangeTaskTest extends TestCase
 
     public function test_レンダリングされるか()
     {
-        $this->actingAs(User::factory()->create());
+        $user = User::factory()->create();
+
+        $this->actingAs($user);
 
         $project = Project::factory()
-                    ->has(Task::factory(3)
-                        ->state(new Sequence(
-                            ['name' => 'name1', 'is_complete' => false],
-                            ['name' => 'name2', 'is_complete' => true],
-                            ['name' => 'name3', 'is_complete' => false],
-                        )))
-                    ->create();
+            ->state(['user_id' => $user->id])
+            ->has(Task::factory(3)
+                ->state(new Sequence(
+                    ['name' => 'name1', 'is_complete' => false],
+                    ['name' => 'name2', 'is_complete' => true],
+                    ['name' => 'name3', 'is_complete' => false],
+                )))
+            ->create();
         
         $selectedIdList = $project
             ->load('tasks')
@@ -57,16 +59,19 @@ class ChangeTaskTest extends TestCase
 
     public function test_タスクIDを追加、削除できるか()
     {
-        $this->actingAs(User::factory()->create());
+        $user = User::factory()->create();
+
+        $this->actingAs($user);
 
         $project = Project::factory()
-                    ->has(Task::factory(3)
-                        ->state(new Sequence(
-                            ['name' => 'name1', 'is_complete' => false],
-                            ['name' => 'name2', 'is_complete' => true],
-                            ['name' => 'name3', 'is_complete' => false],
-                        )))
-                    ->create();
+            ->state(['user_id' => $user->id])
+            ->has(Task::factory(3)
+                ->state(new Sequence(
+                    ['name' => 'name1', 'is_complete' => false],
+                    ['name' => 'name2', 'is_complete' => true],
+                    ['name' => 'name3', 'is_complete' => false],
+                )))
+            ->create();
         
         $selectedIdList = $project
             ->load('tasks')
@@ -99,16 +104,19 @@ class ChangeTaskTest extends TestCase
 
     public function test_保存できるか()
     {
-        $this->actingAs(User::factory()->create());
+        $user = User::factory()->create();
+
+        $this->actingAs($user);
 
         $project = Project::factory()
-                    ->has(Task::factory(3)
-                        ->state(new Sequence(
-                            ['name' => 'name1', 'is_complete' => false],
-                            ['name' => 'name2', 'is_complete' => true],
-                            ['name' => 'name3', 'is_complete' => false],
-                        )))
-                    ->create();
+            ->state(['user_id' => $user->id])
+            ->has(Task::factory(3)
+                ->state(new Sequence(
+                    ['name' => 'name1', 'is_complete' => false],
+                    ['name' => 'name2', 'is_complete' => true],
+                    ['name' => 'name3', 'is_complete' => false],
+                )))
+            ->create();
         
         $taskId = $project
             ->load('tasks')

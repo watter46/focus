@@ -14,7 +14,7 @@ use App\Models\Project;
 use App\Livewire\Utils\Message\Message;
 use App\UseCases\Development\DevelopmentCommand;
 use App\UseCases\Development\FetchProjectSelectedTasksUseCase;
-use App\UseCases\Project\Domain\ProjectCommand;
+use App\UseCases\Project\ProjectCommand;
 use App\UseCases\Task\AddTaskUseCase;
 
 
@@ -89,7 +89,7 @@ final class InprogressTasks extends Component
         $this->validate();
 
         try {
-            $command = new ProjectCommand(
+            $command = ProjectCommand::addTask(
                 projectId: $this->projectId,
                 name: $this->name,
                 content: $this->content

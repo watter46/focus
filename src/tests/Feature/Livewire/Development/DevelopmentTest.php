@@ -10,9 +10,8 @@ use Illuminate\Support\Str;
 use App\Models\Development as EqDevelopment;
 use App\Models\Project;
 use App\Models\User;
-use App\Livewire\Development\Development;
 use App\Models\Task;
-use App\UseCases\Development\Domain\Development as DevelopmentEntity;
+use App\Livewire\Development\Development;
 use App\UseCases\Development\Infrastructure\DevelopmentFactory;
 use App\UseCases\Development\Infrastructure\DevelopmentModelBuilder;
 
@@ -38,9 +37,7 @@ class DevelopmentTest extends TestCase
             ->state(['user_id' => $user->id])
             ->has(Task::factory()->state(['name' => 'task1']))
             ->create();
-        
-        $taskId = $this->project->load('tasks')->tasks->sole()->id;
-            
+                    
         /** @var DevelopmentFactory $factory */
         $factory = app(DevelopmentFactory::class);
 
@@ -50,14 +47,6 @@ class DevelopmentTest extends TestCase
         $entity = $factory->create($this->project);
 
         $this->development = $builder->toModel($entity);
-        
-        // $this->development = EqDevelopment::factory()
-        //     ->state([
-        //         'project_id'       => $this->project->id,
-        //         'selected_id_list' => [$taskId]
-        //     ])
-        //     ->for($this->project)
-        //     ->create();
 
         $this->component = Livewire::test(Development::class, ['projectId' => $this->project->id]);
     }
