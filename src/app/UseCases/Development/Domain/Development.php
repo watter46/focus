@@ -2,12 +2,13 @@
 
 namespace App\UseCases\Development\Domain;
 
-use App\Models\Development;
+use Exception;
+
 use App\UseCases\Util\UlidValidator;
 use App\UseCases\Development\DevelopmentCommand;
 
 
-final readonly class DevelopmentEntity
+final readonly class Development
 {        
     private ?string $developmentId;
     private ?string $projectId;
@@ -46,6 +47,10 @@ final readonly class DevelopmentEntity
      */
     public function start(DevelopmentCommand $command): self
     {
+        if (empty($command->selectedIdList())) {
+            throw new Exception('タスクが選択されていません。');
+        }
+        
         return $this->changeAttribute(
             projectId: $command->projectId(),
             isStart: true,
@@ -97,18 +102,16 @@ final readonly class DevelopmentEntity
     /**
      * 同じプロジェクトを再開発する
      * 
-     * @param Development $development
-     * 
      * @return self
      */
-    public function repeat(Development $development): self
-    {        
-        return $this->changeAttribute(
-            projectId: $development->project_id,
+    public function repeat(): self
+    {                
+        return new self(
+            projectId: $this->projectId,
             isStart: true,
             isComplete: false,
-            selectedIdList: $development->selected_id_list,
-            timer: $this->timer->start(defaultTime: $development->default_time)
+            selectedIdList: $this->selectedIdList,
+            timer: $this->timer->repeat(defaultTime: $this->timer()->defaultTime())
         );
     }
     

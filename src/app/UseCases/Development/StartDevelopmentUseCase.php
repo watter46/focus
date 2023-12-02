@@ -5,7 +5,7 @@ namespace App\UseCases\Development;
 use DB;
 use Exception;
 
-use App\Models\Development;
+use App\Models\Development as EqDevelopment;
 use App\Models\Project;
 use App\UseCases\Development\DevelopmentCommand;
 use App\UseCases\Development\Infrastructure\DevelopmentFactory;
@@ -19,7 +19,7 @@ final readonly class StartDevelopmentUseCase
         //
     }
 
-    public function execute(DevelopmentCommand $command): Development
+    public function execute(DevelopmentCommand $command): EqDevelopment
     {
         try {
             /** @var Project $project */

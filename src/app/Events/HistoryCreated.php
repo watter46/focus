@@ -7,7 +7,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-use App\UseCases\Development\Domain\DevelopmentEntity;
+use App\UseCases\Development\Domain\Development;
 
 
 class HistoryCreated
@@ -17,7 +17,7 @@ class HistoryCreated
     /**
      * Create a new event instance.
      */
-    public function __construct(public DevelopmentEntity $development)
+    public function __construct(public Development $development)
     {
         //
     }

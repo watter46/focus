@@ -5,7 +5,7 @@ namespace App\UseCases\Development;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
-use App\Models\Development;
+use App\Models\Development as EqDevelopment;
 use App\Models\Project;
 use App\UseCases\Development\DevelopmentCommand;
 
@@ -20,8 +20,8 @@ final readonly class FetchProjectSelectedTasksUseCase
     public function execute(DevelopmentCommand $command): Project
     {
         try {
-            /** @var Development $development */
-            $development = Development::findOrFail($command->developmentId());
+            /** @var EqDevelopment $development */
+            $development = EqDevelopment::findOrFail($command->developmentId());
                         
             $selectedIdList = $development->selected_id_list;
             

@@ -2,8 +2,8 @@
 
 namespace App\UseCases\Development\Infrastructure;
 
-use App\Models\Development;
-use App\UseCases\Development\Domain\DevelopmentEntity;
+use App\Models\Development as EqDevelopment;
+use App\UseCases\Development\Domain\Development;
 
 
 final readonly class DevelopmentModelBuilder
@@ -13,7 +13,7 @@ final readonly class DevelopmentModelBuilder
         //
     }
 
-    public function toModel(DevelopmentEntity $dev, Development $model = new Development): Development
+    public function toModel(Development $dev, EqDevelopment $model = new EqDevelopment): EqDevelopment
     {
         $model->id               = $dev->developmentId();
         $model->project_id       = $dev->projectId();
@@ -24,7 +24,7 @@ final readonly class DevelopmentModelBuilder
         $model->started_at       = $dev->timer()->startedAt()?->value();
         $model->finished_at      = $dev->timer()->finishedAt()?->value();
         $model->selected_id_list = $dev->selectedIdList();
-
+        
         return $model;
     }
 }

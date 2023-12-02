@@ -6,7 +6,7 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
-use App\Models\Development;
+use App\Models\Development as EqDevelopment;
 use App\UseCases\Development\DevelopmentCommand;
 use App\UseCases\Development\Infrastructure\DevelopmentModelBuilder;
 use App\UseCases\Development\Infrastructure\DevelopmentFactory;
@@ -19,11 +19,11 @@ final readonly class ChangeTaskUseCase
         //
     }
 
-    public function execute(DevelopmentCommand $command): Development
+    public function execute(DevelopmentCommand $command): EqDevelopment
     {
         try {
-            /** @var Development $model */
-            $model = Development::findOrFail($command->developmentId());
+            /** @var EqDevelopment $model */
+            $model = EqDevelopment::findOrFail($command->developmentId());
             
             $changed = $this
                 ->factory

@@ -101,6 +101,20 @@ final readonly class Timer
     }
     
     /**
+     * タイマーリピートする
+     *
+     * @param  int $defaultTime
+     * @return self
+     */
+    public function repeat(int $defaultTime): self
+    {
+        return new self(
+            defaultTime:   $defaultTime,
+            remainingTime: $defaultTime
+        );
+    }
+    
+    /**
      * プロパティを変更する
      * 
      * @param ?int        $defaultTime,

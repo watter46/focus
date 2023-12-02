@@ -3,7 +3,6 @@
 namespace Tests\Feature\Livewire\Development;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Livewire\Livewire;
 use Tests\TestCase;
 use Illuminate\Support\Str;
@@ -11,46 +10,68 @@ use Illuminate\Support\Str;
 use App\Models\Development as EqDevelopment;
 use App\Models\Project;
 use App\Models\User;
+use App\Models\Task;
 use App\Livewire\Development\Development;
-use App\UseCases\Development\Domain\DevelopmentEntity;
+use App\UseCases\Development\Infrastructure\DevelopmentFactory;
+use App\UseCases\Development\Infrastructure\DevelopmentModelBuilder;
 
 
 class DevelopmentTest extends TestCase
 {
     use RefreshDatabase;
+
+    private EqDevelopment $development;
+    private Project       $project;
+    
+    private $component;
+
+    public function setUp(): void
+    {
+        Parent::setUp();
+        
+        $user = User::factory()->create();
+
+        $this->actingAs($user);
+
+        $this->project = Project::factory()
+            ->state(['user_id' => $user->id])
+            ->has(Task::factory()->state(['name' => 'task1']))
+            ->create();
+                    
+        /** @var DevelopmentFactory $factory */
+        $factory = app(DevelopmentFactory::class);
+
+        /** @var DevelopmentModelBuilder $builder */
+        $builder = app(DevelopmentModelBuilder::class);
+        
+        $entity = $factory->create($this->project);
+
+        $this->development = $builder->toModel($entity);
+
+        $this->component = Livewire::test(Development::class, ['projectId' => $this->project->id]);
+    }
+    
     
     public function test_レンダリングされるか()
-    {
-        $this->actingAs(User::factory()->create());
-
-        $project = Project::factory()->create();
-
-        $development = (new DevelopmentEntity)->create($project)->toModel();
-        
-        Livewire::test(Development::class, ['projectId' => $project->id])
-            ->assertSet('projectId', $project->id)
-            ->assertSet('development', $development)
+    {                
+        $this->component
+            ->assertSet('projectId', $this->project->id)
+            ->assertSet('development', $this->development)
             ->assertSeeLivewire(Development::class);
     }
 
     public function test_開発をスタートできるか()
     {
-        $this->actingAs(User::factory()->create());
-
-        $project = Project::factory()->create();
-
-        $development = (new DevelopmentEntity)->create($project)->toModel();
-
         $this->freezeTime();
 
         $taskId = (string) Str::ulid();
         $selectedIdList = [$taskId];
-        
-        Livewire::test(Development::class, ['projectId' => $project->id])
-            ->assertSet('projectId', $project->id)
-            ->assertSet('development', $development)
+
+        $this->component
+            ->assertSet('projectId', $this->project->id)
+            ->assertSet('development', $this->development)
             ->dispatch('timer-started', 15, $selectedIdList)
-            ->assertViewHas('development', function (EqDevelopment $development) use ($project, $selectedIdList) {
+            ->assertViewHas('development', function (EqDevelopment $development) use ($selectedIdList) {
                 $this->assertTrue($development->is_start);
                 $this->assertFalse($development->is_complete);
                 $this->assertSame($development->default_time, 15);
@@ -58,7 +79,7 @@ class DevelopmentTest extends TestCase
                 $this->assertSame($development->started_at->toDateString(), now()->toDateString());
                 $this->assertSame($development->finished_at, null);
                 $this->assertSame($development->selected_id_list, $selectedIdList);
-                $this->assertSame($development->project_id, $project->id);
+                $this->assertSame($development->project_id, $this->project->id);
 
                 return true;
             });
@@ -66,22 +87,16 @@ class DevelopmentTest extends TestCase
 
     public function test_開発をストップできるか()
     {
-        $this->actingAs(User::factory()->create());
-
-        $project = Project::factory()->create();
-
         $this->freezeTime();
-
-        $development = (new DevelopmentEntity)->create($project)->toModel();
 
         $taskId = (string) Str::ulid();
         $selectedIdList = [$taskId];
 
-        $started = Livewire::test(Development::class, ['projectId' => $project->id])
-            ->assertSet('projectId', $project->id)
-            ->assertSet('development', $development)
+        $started = $this->component
+            ->assertSet('projectId', $this->project->id)
+            ->assertSet('development', $this->development)
             ->dispatch('timer-started', 20, $selectedIdList)
-            ->assertViewHas('development', function (EqDevelopment $development) use ($project, $selectedIdList) {
+            ->assertViewHas('development', function (EqDevelopment $development) use ($selectedIdList) {
                 $this->assertTrue($development->is_start);
                 $this->assertFalse($development->is_complete);
                 $this->assertSame($development->default_time, 20);
@@ -89,7 +104,7 @@ class DevelopmentTest extends TestCase
                 $this->assertSame($development->started_at->toDateString(), now()->toDateString());
                 $this->assertSame($development->finished_at, null);
                 $this->assertSame($development->selected_id_list, $selectedIdList);
-                $this->assertSame($development->project_id, $project->id);
+                $this->assertSame($development->project_id, $this->project->id);
 
                 return true;
             });
@@ -106,22 +121,16 @@ class DevelopmentTest extends TestCase
 
     public function test_開発を完了できるか()
     {
-        $this->actingAs(User::factory()->create());
-
-        $project = Project::factory()->create();
-
         $this->freezeTime();
-
-        $development = (new DevelopmentEntity)->create($project)->toModel();
 
         $taskId = (string) Str::ulid();
         $selectedIdList = [$taskId];
 
-        $started = Livewire::test(Development::class, ['projectId' => $project->id])
-            ->assertSet('projectId', $project->id)
-            ->assertSet('development', $development)
+        $started = $this->component
+            ->assertSet('projectId', $this->project->id)
+            ->assertSet('development', $this->development)
             ->dispatch('timer-started', 20, $selectedIdList)
-            ->assertViewHas('development', function (EqDevelopment $development) use ($project, $selectedIdList) {
+            ->assertViewHas('development', function (EqDevelopment $development) use ($selectedIdList) {
                 $this->assertTrue($development->is_start);
                 $this->assertFalse($development->is_complete);
                 $this->assertSame($development->default_time, 20);
@@ -129,7 +138,7 @@ class DevelopmentTest extends TestCase
                 $this->assertSame($development->started_at->toDateString(), now()->toDateString());
                 $this->assertSame($development->finished_at, null);
                 $this->assertSame($development->selected_id_list, $selectedIdList);
-                $this->assertSame($development->project_id, $project->id);
+                $this->assertSame($development->project_id, $this->project->id);
 
                 return true;
             });
@@ -148,22 +157,16 @@ class DevelopmentTest extends TestCase
 
     public function test_開発を途中でやめれるか()
     {
-        $this->actingAs(User::factory()->create());
-
-        $project = Project::factory()->create();
-
         $this->freezeTime();
-
-        $development = (new DevelopmentEntity)->create($project)->toModel();
 
         $taskId = (string) Str::ulid();
         $selectedIdList = [$taskId];
 
-        $started = Livewire::test(Development::class, ['projectId' => $project->id])
-            ->assertSet('projectId', $project->id)
-            ->assertSet('development', $development)
+        $started = $this->component
+            ->assertSet('projectId', $this->project->id)
+            ->assertSet('development', $this->development)
             ->dispatch('timer-started', 20, $selectedIdList)
-            ->assertViewHas('development', function (EqDevelopment $development) use ($project, $selectedIdList) {
+            ->assertViewHas('development', function (EqDevelopment $development) use ($selectedIdList) {
                 $this->assertTrue($development->is_start);
                 $this->assertFalse($development->is_complete);
                 $this->assertSame($development->default_time, 20);
@@ -171,7 +174,7 @@ class DevelopmentTest extends TestCase
                 $this->assertSame($development->started_at->toDateString(), now()->toDateString());
                 $this->assertSame($development->finished_at, null);
                 $this->assertSame($development->selected_id_list, $selectedIdList);
-                $this->assertSame($development->project_id, $project->id);
+                $this->assertSame($development->project_id, $this->project->id);
 
                 return true;
             });
@@ -191,22 +194,16 @@ class DevelopmentTest extends TestCase
 
     public function test_再開発できるか()
     {
-        $this->actingAs(User::factory()->create());
-
-        $project = Project::factory()->create();
-
         $this->freezeTime();
-
-        $development = (new DevelopmentEntity)->create($project)->toModel();
 
         $taskId = (string) Str::ulid();
         $selectedIdList = [$taskId];
 
-        $started = Livewire::test(Development::class, ['projectId' => $project->id])
-            ->assertSet('projectId', $project->id)
-            ->assertSet('development', $development)
+        $started = $this->component
+            ->assertSet('projectId', $this->project->id)
+            ->assertSet('development', $this->development)
             ->dispatch('timer-started', 20, $selectedIdList)
-            ->assertViewHas('development', function (EqDevelopment $development) use ($project, $selectedIdList) {
+            ->assertViewHas('development', function (EqDevelopment $development) use ($selectedIdList) {
                 $this->assertTrue($development->is_start);
                 $this->assertFalse($development->is_complete);
                 $this->assertSame($development->default_time, 20);
@@ -214,20 +211,20 @@ class DevelopmentTest extends TestCase
                 $this->assertSame($development->started_at->toDateString(), now()->toDateString());
                 $this->assertSame($development->finished_at, null);
                 $this->assertSame($development->selected_id_list, $selectedIdList);
-                $this->assertSame($development->project_id, $project->id);
+                $this->assertSame($development->project_id, $this->project->id);
 
                 return true;
             });
 
         $started
-            ->dispatch('break-time-finished', $project->id)
-            ->assertViewHas('development', function (EqDevelopment $development) use ($project, $selectedIdList) {
-                $this->assertSame($development->project_id, $project->id);
+            ->dispatch('break-time-finished', $this->project->id)
+            ->assertViewHas('development', function (EqDevelopment $development) use ($selectedIdList) {
+                $this->assertSame($development->project_id, $this->project->id);
                 $this->assertTrue($development->is_start);
                 $this->assertFalse($development->is_complete);
                 $this->assertSame($development->default_time, 20);
                 $this->assertSame($development->remaining_time, 20);
-                $this->assertSame($development->started_at->toDateString(), now()->toDateString());
+                $this->assertSame($development->started_at, null);
                 $this->assertSame($development->finished_at, null);
                 $this->assertSame($development->selected_id_list, $selectedIdList);
 

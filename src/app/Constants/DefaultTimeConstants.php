@@ -8,7 +8,8 @@ use Exception;
 final readonly class DefaultTimeConstants
 {
     const VALUE_min = 25;
-    const MIN_min   = 1;
+    // const MIN_min   = 1;
+    const MIN_min   = 0;
     const MAX_min   = 90;
 
     const VALUE_sec = self::VALUE_min * 60;

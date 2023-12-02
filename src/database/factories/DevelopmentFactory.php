@@ -17,8 +17,11 @@ class DevelopmentFactory extends Factory
     public function definition(): array
     {
         return [
-            'is_start'    => false,
-            'is_complete' => false,
+            'is_start'       => false,
+            'is_complete'    => false,
+            'default_time'   => 1800,
+            'remaining_time' => 1800,
+            'started_at'     => now()
         ];
     }
 }
